@@ -3,6 +3,13 @@
 
 import { cpUtils } from "../../../../src/debug/depsChecker/cpUtils";
 
+export async function isFuncCoreToolsInstalled(): Promise<boolean> {
+  const funcVersion = String(await getFuncCoreToolsVersion());
+  return supportedFuncVersions.includes(funcVersion);
+}
+
+const supportedFuncVersions = ["3"];
+
 export async function getFuncCoreToolsVersion(): Promise<string | null> {
   try {
     const output = await cpUtils.executeCommand(
