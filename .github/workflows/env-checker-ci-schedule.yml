@@ -72,9 +72,9 @@ jobs:
           retry_wait_seconds: 3
           on_retry_command: git clean -fXd .
           command: |
-            cd ./packages/vscode-extension
-            npm install
-            npm run build
+            npx lerna exec -- rm -rf package-lock.json node_modules
+            npm run setup --legacy-peer-deps
+
 
       ## In headless Linux CI machines xvfb is required to run VS Code
       ## https://code.visualstudio.com/api/working-with-extensions/continuous-integration#github-actions
