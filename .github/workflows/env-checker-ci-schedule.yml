@@ -66,14 +66,16 @@ jobs:
       # https://github.com/marketplace/actions/retry-step
       - name: Setup project with Retry
         uses: nick-invision/retry@v2
+        working-directory: ./packages/vscode-extension
         with:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 3
           on_retry_command: git clean -fXd .
           command: |
+            cd ./packages/vscode-extension
             npm install
-            npx lerna bootstrap --concurrency 1
+            npm run build
 
       ## In headless Linux CI machines xvfb is required to run VS Code
       ## https://code.visualstudio.com/api/working-with-extensions/continuous-integration#github-actions
