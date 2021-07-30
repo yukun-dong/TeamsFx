@@ -72,7 +72,7 @@ jobs:
           retry_wait_seconds: 3
           on_retry_command: git clean -fXd .
           command: |
-            npx lerna exec -- rm -rf package-lock.json node_modules
+            npx lerna exec -- rm -rf node_modules
             npm run setup --legacy-peer-deps
 
 
