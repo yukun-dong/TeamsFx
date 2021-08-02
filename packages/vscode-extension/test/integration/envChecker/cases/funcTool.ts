@@ -53,7 +53,7 @@ suite("FuncToolChecker E2E Test", async () => {
 
     const [depsChecker, funcToolChecker, ,] = createTestChecker(true);
     spy.on(funcToolChecker, "getDefaultInstallPath", () =>
-      path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "Aarón García", "func test")
+      path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "func", "Aarón García", "for test")
     );
 
     const shouldContinue = await depsChecker.resolve();
@@ -61,7 +61,7 @@ suite("FuncToolChecker E2E Test", async () => {
     expect(shouldContinue).to.be.equal(true);
     assert.isTrue(
       /node "[^"]*"$/g.test(await funcToolChecker.getFuncCommand()),
-      `should use portable func`
+      `should use portable func, and func command = ${await funcToolChecker.getFuncCommand()}`
     );
     await assertFuncStart(funcToolChecker);
   });
@@ -73,22 +73,22 @@ suite("FuncToolChecker E2E Test", async () => {
 
     // first: throw timeout error
     const [depsChecker, funcToolChecker, testAdapter] = createTestChecker(true);
-    const displayLearnMoreSpy = chai.spy(testAdapter.displayLearnMore);
+    chai.spy.on(testAdapter, "displayLearnMore");
     chai.util.addProperty(funcToolChecker, "timeout", () => 8 * 1000);
 
     const shouldContinueFirst = await depsChecker.resolve();
 
-    expect(shouldContinueFirst).to.be.equal(false);
-    expect(displayLearnMoreSpy).to.be.called.exactly(1);
+    assert.equal(shouldContinueFirst, false);
+    expect(testAdapter.displayLearnMore).to.be.called.exactly(1);
 
     // second: still works well
-    displayLearnMoreSpy.reset();
+    chai.spy.restore(testAdapter, "displayLearnMore");
     chai.util.addProperty(funcToolChecker, "timeout", () => 5 * 60 * 1000);
 
     const shouldContinueSecond = await depsChecker.resolve();
 
     expect(shouldContinueSecond).to.be.equal(true);
-    expect(displayLearnMoreSpy).to.be.called.exactly(0);
+    expect(testAdapter.displayLearnMore).to.be.called.exactly(0);
     await assertFuncStart(funcToolChecker);
   });
 
@@ -134,11 +134,11 @@ suite("FuncToolChecker E2E Test", async () => {
     }
 
     const [depsChecker, funcToolChecker, testAdapter] = createTestChecker(true);
-    const displayLearnMoreSpy = chai.spy(testAdapter.displayLearnMore);
+    chai.spy.on(testAdapter, "displayLearnMore");
     const shouldContinue = await depsChecker.resolve();
 
     expect(shouldContinue).to.be.equal(true);
-    expect(displayLearnMoreSpy).to.be.called.exactly(0);
+    expect(testAdapter.displayLearnMore).to.be.called.exactly(0);
     expect(await funcToolChecker.getFuncCommand()).to.be.equal("func", `should use global func`);
     await assertFuncStart(funcToolChecker);
   });
