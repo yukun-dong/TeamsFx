@@ -42,14 +42,12 @@ function createTestChecker(
 }
 
 suite("FuncToolChecker E2E Test", async () => {
-  // TODO: linux
-
   setup(async function (this: Mocha.Context) {
     await funcUtils.cleanup();
   });
 
   test("not install + special character dir", async function (this: Mocha.Context) {
-    if (await funcUtils.isFuncCoreToolsInstalled()) {
+    if ((await funcUtils.isFuncCoreToolsInstalled()) || isLinux()) {
       this.skip();
     }
 
@@ -69,7 +67,7 @@ suite("FuncToolChecker E2E Test", async () => {
   });
 
   test("not install + throw error when installing", async function (this: Mocha.Context) {
-    if (await funcUtils.isFuncCoreToolsInstalled()) {
+    if ((await funcUtils.isFuncCoreToolsInstalled()) || isLinux()) {
       this.skip();
     }
 
