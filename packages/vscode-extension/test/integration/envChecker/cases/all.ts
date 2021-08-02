@@ -188,6 +188,9 @@ suite("All checkers E2E test", async () => {
     if (await commandExistsInPath(dotnetUtils.dotnetCommand)) {
       this.skip();
     }
+    if (await funcUtils.isFuncCoreToolsInstalled()) {
+      this.skip();
+    }
 
     const [checker, _, dotnetChecker, backendExtensionsInstaller, ,] = createTestChecker(true);
 
