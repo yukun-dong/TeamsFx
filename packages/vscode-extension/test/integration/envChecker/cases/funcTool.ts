@@ -15,7 +15,6 @@ import * as os from "os";
 import { cpUtils } from "../../../../src/debug/depsChecker/cpUtils";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
 import { isWindows, isLinux } from "../../../../src/debug/depsChecker/common";
-import * as dotnetUtils from "test/integration/envChecker/utils/dotnet";
 
 chai.use(spies);
 const expect = chai.expect;
