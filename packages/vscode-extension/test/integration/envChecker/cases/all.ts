@@ -188,9 +188,6 @@ suite("All checkers E2E test", async () => {
     if (await commandExistsInPath(dotnetUtils.dotnetCommand)) {
       this.skip();
     }
-    if (await funcUtils.isFuncCoreToolsInstalled()) {
-      this.skip();
-    }
 
     const [checker, _, dotnetChecker, backendExtensionsInstaller, ,] = createTestChecker(true);
 
@@ -227,12 +224,21 @@ suite("All checkers E2E test", async () => {
     chai.assert.isTrue(shouldContinue);
     chai.assert.isNotNull(dotnetExecPath);
     chai.assert.equal(dotnetExecPath!, dotnetUtils.dotnetCommand);
-    chai.assert.equal(
-      "npx azure-functions-core-tools@3",
-      funcCommand,
-      "when disable func, should use: npx azure-functions-core-tools@3"
-    );
     chai.assert.isFalse(await isNonEmptyDir(backendOutputPath));
+
+    if (await funcUtils.isFuncCoreToolsInstalled()) {
+      chai.assert.equal(
+        "func",
+        funcCommand,
+        "when disable func and func already installed, should use: func"
+      );
+    } else {
+      chai.assert.equal(
+        "npx azure-functions-core-tools@3",
+        funcCommand,
+        "when disable func, should use: npx azure-functions-core-tools@3"
+      );
+    }
 
     if (
       await dotnetUtils.hasAnyDotnetVersions(
