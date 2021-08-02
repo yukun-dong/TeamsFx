@@ -58,6 +58,7 @@ suite("All checkers E2E test", async () => {
     backendOutputPath = path.resolve(backendProjectDir, testOutputDirName);
 
     await dotnetUtils.cleanup();
+    await funcUtils.cleanup();
   });
 
   test("All installed", async function (this: Mocha.Context) {
