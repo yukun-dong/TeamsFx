@@ -15,6 +15,7 @@ import * as os from "os";
 import { cpUtils } from "../../../../src/debug/depsChecker/cpUtils";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
 import { isWindows, isLinux } from "../../../../src/debug/depsChecker/common";
+import * as dotnetUtils from "test/integration/envChecker/utils/dotnet";
 
 chai.use(spies);
 const expect = chai.expect;
@@ -43,6 +44,11 @@ function createTestChecker(
 
 suite("FuncToolChecker E2E Test", async () => {
   // TODO: linux
+
+  setup(async function (this: Mocha.Context) {
+    await funcUtils.cleanup();
+  });
+
   test("not install + special character dir", async function (this: Mocha.Context) {
     if (await funcUtils.isFuncCoreToolsInstalled()) {
       this.skip();

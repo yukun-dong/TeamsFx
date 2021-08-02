@@ -2,6 +2,21 @@
 // Licensed under the MIT license.
 
 import { cpUtils } from "../../../../src/debug/depsChecker/cpUtils";
+import { ConfigFolderName } from "@microsoft/teamsfx-api";
+import * as path from "path";
+import * as os from "os";
+import * as fs from "fs-extra";
+
+export const portableFuncInstallPath = path.join(
+  os.homedir(),
+  "." + ConfigFolderName,
+  "bin",
+  "func"
+);
+
+export async function cleanup(): Promise<void> {
+  await fs.remove(portableFuncInstallPath);
+}
 
 export async function isFuncCoreToolsInstalled(): Promise<boolean> {
   const funcVersion = String(await getFuncCoreToolsVersion());
