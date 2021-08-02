@@ -56,7 +56,9 @@ suite("FuncToolChecker E2E Test", async () => {
       path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "func", "Aarón García", "for test")
     );
 
+    console.log(`flag start:+ ${new Date().toDateString()} `);
     const shouldContinue = await depsChecker.resolve();
+    console.log(`flag end:+ ${new Date().toDateString()} `);
 
     expect(shouldContinue).to.be.equal(true);
     assert.isTrue(
@@ -76,7 +78,9 @@ suite("FuncToolChecker E2E Test", async () => {
     chai.spy.on(testAdapter, "displayLearnMore");
     chai.util.addProperty(funcToolChecker, "timeout", () => 8 * 1000);
 
+    console.log(`1 flag start:+ ${new Date().toDateString()} `);
     const shouldContinueFirst = await depsChecker.resolve();
+    console.log(`1 flag end:+ ${new Date().toDateString()} `);
 
     assert.equal(shouldContinueFirst, false);
     expect(testAdapter.displayLearnMore).to.be.called.exactly(1);
@@ -85,9 +89,11 @@ suite("FuncToolChecker E2E Test", async () => {
     chai.spy.restore(testAdapter, "displayLearnMore");
     chai.util.addProperty(funcToolChecker, "timeout", () => 5 * 60 * 1000);
 
+    console.log(`2flag start:+ ${new Date().toDateString()} `);
     const shouldContinueSecond = await depsChecker.resolve();
+    console.log(`2flag end:+ ${new Date().toDateString()} `);
 
-    expect(shouldContinueSecond).to.be.equal(true);
+    expect(shouldContinueSecond).to.be.equal(true, "second run, should success");
     expect(testAdapter.displayLearnMore).to.be.called.exactly(0);
     await assertFuncStart(funcToolChecker);
   });

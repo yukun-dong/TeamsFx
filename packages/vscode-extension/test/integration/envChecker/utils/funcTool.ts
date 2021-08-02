@@ -9,13 +9,19 @@ import * as fs from "fs-extra";
 
 export const portableFuncInstallPath = path.join(
   os.homedir(),
-  "." + ConfigFolderName,
+  `.${ConfigFolderName}`,
   "bin",
   "func"
+);
+export const portableFuncSentinelPath = path.join(
+  os.homedir(),
+  `.${ConfigFolderName}`,
+  "func-sentinel"
 );
 
 export async function cleanup(): Promise<void> {
   await fs.remove(portableFuncInstallPath);
+  await fs.remove(portableFuncSentinelPath);
 }
 
 export async function isFuncCoreToolsInstalled(): Promise<boolean> {
