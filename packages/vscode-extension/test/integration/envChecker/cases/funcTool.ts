@@ -145,7 +145,10 @@ suite("FuncToolChecker E2E Test", async () => {
 
   test("already install + old func version(v2)", async function (this: Mocha.Context) {
     const funcVersion = await funcUtils.getFuncCoreToolsVersion();
-    if (funcVersion == null || !(await funcUtils.isFuncCoreToolsInstalled()) || isLinux()) {
+    if (isLinux()) {
+      this.skip();
+    }
+    if (funcVersion == null || (await funcUtils.isFuncCoreToolsInstalled())) {
       this.skip();
     }
 
