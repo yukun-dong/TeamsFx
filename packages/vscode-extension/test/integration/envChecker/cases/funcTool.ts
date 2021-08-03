@@ -74,7 +74,7 @@ suite("FuncToolChecker E2E Test", async () => {
     // first: throw timeout error
     const [depsChecker, funcToolChecker, testAdapter] = createTestChecker(true);
     chai.spy.on(testAdapter, "displayLearnMore");
-    chai.util.overwriteProperty(funcToolChecker, "timeout", () => 8 * 1000);
+    chai.spy.on(funcToolChecker, "doInstallPortableFunc", async () => {});
 
     const shouldContinueFirst = await depsChecker.resolve();
 
@@ -83,8 +83,7 @@ suite("FuncToolChecker E2E Test", async () => {
 
     // second: still works well
     chai.spy.restore(testAdapter, "displayLearnMore");
-    chai.util.overwriteProperty(funcToolChecker, "timeout", () => 5 * 60 * 1000);
-
+    chai.spy.restore(funcToolChecker, "doInstallPortableFunc");
     const shouldContinueSecond = await depsChecker.resolve();
 
     expect(shouldContinueSecond).to.be.equal(true, "second run, should success");
