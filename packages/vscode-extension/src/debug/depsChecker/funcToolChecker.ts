@@ -290,6 +290,7 @@ export class FuncToolChecker implements IDepsChecker {
         }
       }
     } catch (error) {
+      await this._logger.debug(`Failed to install function-core-tools, error = ${error}`);
       this._telemetry.sendSystemErrorEvent(
         DepsCheckerEvent.funcInstallScriptError,
         TelemtryMessages.failedToInstallFunc,
