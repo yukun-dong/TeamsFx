@@ -77,9 +77,9 @@ suite("FuncToolChecker E2E Test", async () => {
     chai.util.addProperty(funcToolChecker, "timeout", () => 8 * 1000);
 
     const shouldContinueFirst = await depsChecker.resolve();
+    console.error(`func command = ${await funcToolChecker.getFuncCommand()}`);
 
     assert.equal(shouldContinueFirst, false);
-    console.error(`func command = ${funcToolChecker.getFuncCommand()}`);
     expect(testAdapter.displayLearnMore).to.be.called.exactly(1);
 
     // second: still works well
