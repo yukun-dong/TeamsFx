@@ -52,9 +52,9 @@ suite("FuncToolChecker E2E Test", async () => {
     }
 
     const [depsChecker, funcToolChecker, ,] = createTestChecker(true);
-    // spy.on(funcToolChecker, "getDefaultInstallPath", () =>
-    //   path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "func", "Aarón García", "for test")
-    // );
+    spy.on(funcToolChecker, "getDefaultInstallPath", () =>
+      path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "func", "Aarón García", "for test")
+    );
 
     const shouldContinue = await depsChecker.resolve();
 
