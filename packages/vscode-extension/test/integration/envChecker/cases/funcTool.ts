@@ -79,6 +79,7 @@ suite("FuncToolChecker E2E Test", async () => {
     const shouldContinueFirst = await depsChecker.resolve();
 
     assert.equal(shouldContinueFirst, false);
+    console.error(`func command = ${funcToolChecker.getFuncCommand()}`);
     expect(testAdapter.displayLearnMore).to.be.called.exactly(1);
 
     // second: still works well
