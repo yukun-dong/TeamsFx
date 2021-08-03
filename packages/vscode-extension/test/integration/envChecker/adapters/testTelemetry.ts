@@ -10,8 +10,11 @@ export class TestTelemetry implements IDepsTelemetry {
     // empty method
   }
 
-  sendEventWithDuration(eventName: DepsCheckerEvent, action: () => Promise<void>): Promise<void> {
-    action();
+  async sendEventWithDuration(
+    eventName: DepsCheckerEvent,
+    action: () => Promise<void>
+  ): Promise<void> {
+    await action();
     return Promise.resolve();
   }
 
