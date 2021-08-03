@@ -74,17 +74,16 @@ suite("FuncToolChecker E2E Test", async () => {
     // first: throw timeout error
     const [depsChecker, funcToolChecker, testAdapter] = createTestChecker(true);
     chai.spy.on(testAdapter, "displayLearnMore");
-    chai.util.addProperty(funcToolChecker, "timeout", () => 8 * 1000);
+    chai.util.overwriteProperty(funcToolChecker, "timeout", () => 8 * 1000);
 
     const shouldContinueFirst = await depsChecker.resolve();
-    console.error(`func command = ${await funcToolChecker.getFuncCommand()}`);
 
     assert.equal(shouldContinueFirst, false);
     expect(testAdapter.displayLearnMore).to.be.called.exactly(1);
 
     // second: still works well
     chai.spy.restore(testAdapter, "displayLearnMore");
-    chai.util.addProperty(funcToolChecker, "timeout", () => 5 * 60 * 1000);
+    chai.util.overwriteProperty(funcToolChecker, "timeout", () => 5 * 60 * 1000);
 
     const shouldContinueSecond = await depsChecker.resolve();
 
