@@ -73,21 +73,22 @@ suite("FuncToolChecker E2E Test", async () => {
 
     // first: throw timeout error
     const [depsChecker, funcToolChecker, testAdapter] = createTestChecker(true);
-    chai.spy.on(testAdapter, "displayLearnMore");
-    chai.spy.on(funcToolChecker, "doInstallPortableFunc", async () => {});
+    const displayLearnMore = spy.on(testAdapter, "displayLearnMore");
+    spy.on(funcToolChecker, "doInstallPortableFunc", async () => {});
 
     const shouldContinueFirst = await depsChecker.resolve();
 
     assert.equal(shouldContinueFirst, false);
-    expect(testAdapter.displayLearnMore).to.be.called.exactly(1);
+    expect(displayLearnMore).to.be.called.exactly(1);
 
     // second: still works well
-    chai.spy.restore(testAdapter, "displayLearnMore");
+    displayLearnMore.restore();
+    // chai.spy.restore(testAdapter, "displayLearnMore");
     chai.spy.restore(funcToolChecker, "doInstallPortableFunc");
     const shouldContinueSecond = await depsChecker.resolve();
 
     expect(shouldContinueSecond).to.be.equal(true, "second run, should success");
-    expect(testAdapter.displayLearnMore).to.be.called.exactly(0);
+    expect(displayLearnMore).to.be.called.exactly(0);
     await assertFuncStart(funcToolChecker);
   });
 
