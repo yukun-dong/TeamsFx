@@ -89,6 +89,8 @@ suite("FuncToolChecker E2E Test", async () => {
     // second: still works well
     sandbox.restore(testAdapter, "displayLearnMore");
     sandbox.restore(funcToolChecker, "doInstallPortableFunc");
+    sandbox.on(testAdapter, "displayLearnMore");
+
     const shouldContinueSecond = await depsChecker.resolve();
 
     expect(shouldContinueSecond).to.be.equal(true, "second run, should success");
