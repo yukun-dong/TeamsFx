@@ -49,25 +49,25 @@ suite("FuncToolChecker E2E Test", async () => {
     console.error("cleanup portable func and sandbox");
   });
 
-  // test("not install + special character dir", async function (this: Mocha.Context) {
-  //   if ((await funcUtils.isFuncCoreToolsInstalled()) || isLinux()) {
-  //     this.skip();
-  //   }
-  //
-  //   const [depsChecker, funcToolChecker, ,] = createTestChecker(true);
-  //   sandbox.on(funcToolChecker, "getDefaultInstallPath", () =>
-  //     path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "func", "Aarón García", "for test")
-  //   );
-  //
-  //   const shouldContinue = await depsChecker.resolve();
-  //
-  //   expect(shouldContinue).to.be.equal(true);
-  //   assert.isTrue(
-  //     /node "[^"]*"$/g.test(await funcToolChecker.getFuncCommand()),
-  //     `should use portable func, and func command = ${await funcToolChecker.getFuncCommand()}`
-  //   );
-  //   await assertFuncStart(funcToolChecker);
-  // });
+  test("not install + special character dir", async function (this: Mocha.Context) {
+    if ((await funcUtils.isFuncCoreToolsInstalled()) || isLinux()) {
+      this.skip();
+    }
+
+    const [depsChecker, funcToolChecker, ,] = createTestChecker(true);
+    sandbox.on(funcToolChecker, "getDefaultInstallPath", () =>
+      path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "func", "Aarón García", "for test")
+    );
+
+    const shouldContinue = await depsChecker.resolve();
+
+    expect(shouldContinue).to.be.equal(true);
+    assert.isTrue(
+      /node "[^"]*"$/g.test(await funcToolChecker.getFuncCommand()),
+      `should use portable func, and func command = ${await funcToolChecker.getFuncCommand()}`
+    );
+    await assertFuncStart(funcToolChecker);
+  });
 
   test("not install + throw error when installing", async function (this: Mocha.Context) {
     if ((await funcUtils.isFuncCoreToolsInstalled()) || isLinux()) {
@@ -98,76 +98,76 @@ suite("FuncToolChecker E2E Test", async () => {
     await assertFuncStart(funcToolChecker);
   });
 
-  // test("not install + linux + user cancel", async function (this: Mocha.Context) {
-  //   if ((await funcUtils.isFuncCoreToolsInstalled()) || !isLinux()) {
-  //     this.skip();
-  //   }
-  //   const [depsChecker, funcToolChecker, ,] = createTestChecker(true, true);
-  //
-  //   const shouldContinue = await depsChecker.resolve();
-  //
-  //   expect(shouldContinue).to.be.equal(false);
-  //   expect(await funcToolChecker.getFuncCommand()).to.be.equal("npx azure-functions-core-tools@3");
-  // });
-  //
-  // test("not install + feature flag", async function (this: Mocha.Context) {
-  //   if (await funcUtils.isFuncCoreToolsInstalled()) {
-  //     this.skip();
-  //   }
-  //   const [depsChecker, funcToolChecker, ,] = createTestChecker(true, false, true, false);
-  //
-  //   const shouldContinue = await depsChecker.resolve();
-  //
-  //   expect(shouldContinue).to.be.equal(true);
-  //   expect(await funcToolChecker.getFuncCommand()).to.be.equal("npx azure-functions-core-tools@3");
-  // });
-  //
-  // test("not install + not backend", async function (this: Mocha.Context) {
-  //   if (await funcUtils.isFuncCoreToolsInstalled()) {
-  //     this.skip();
-  //   }
-  //   const [depsChecker, funcToolChecker, ,] = createTestChecker(false);
-  //
-  //   const shouldContinue = await depsChecker.resolve();
-  //
-  //   expect(shouldContinue).to.be.equal(true);
-  //   expect(await funcToolChecker.getFuncCommand()).to.be.equal("npx azure-functions-core-tools@3");
-  // });
-  //
-  // test("already install + linux", async function (this: Mocha.Context) {
-  //   if (!(await funcUtils.isFuncCoreToolsInstalled()) || !isLinux()) {
-  //     this.skip();
-  //   }
-  //
-  //   const [depsChecker, funcToolChecker, testAdapter] = createTestChecker(true);
-  //   sandbox.on(testAdapter, "displayLearnMore");
-  //   const shouldContinue = await depsChecker.resolve();
-  //
-  //   expect(shouldContinue).to.be.equal(true);
-  //   expect(testAdapter.displayLearnMore).to.be.called.exactly(0);
-  //   expect(await funcToolChecker.getFuncCommand()).to.be.equal("func", `should use global func`);
-  //   await assertFuncStart(funcToolChecker);
-  // });
-  //
-  // test("already install + old func version(v2)", async function (this: Mocha.Context) {
-  //   const funcVersion = await funcUtils.getFuncCoreToolsVersion();
-  //   if (isLinux()) {
-  //     this.skip();
-  //   }
-  //   if (funcVersion == null || (await funcUtils.isFuncCoreToolsInstalled())) {
-  //     this.skip();
-  //   }
-  //
-  //   const [depsChecker, funcToolChecker, ,] = createTestChecker(true);
-  //   const shouldContinue = await depsChecker.resolve();
-  //
-  //   expect(shouldContinue).to.be.equal(true);
-  //   assert.isTrue(
-  //     /node "[^"]*"$/g.test(await funcToolChecker.getFuncCommand()),
-  //     `should use portable func`
-  //   );
-  //   await assertFuncStart(funcToolChecker);
-  // });
+  test("not install + linux + user cancel", async function (this: Mocha.Context) {
+    if ((await funcUtils.isFuncCoreToolsInstalled()) || !isLinux()) {
+      this.skip();
+    }
+    const [depsChecker, funcToolChecker, ,] = createTestChecker(true, true);
+
+    const shouldContinue = await depsChecker.resolve();
+
+    expect(shouldContinue).to.be.equal(false);
+    expect(await funcToolChecker.getFuncCommand()).to.be.equal("npx azure-functions-core-tools@3");
+  });
+
+  test("not install + feature flag", async function (this: Mocha.Context) {
+    if (await funcUtils.isFuncCoreToolsInstalled()) {
+      this.skip();
+    }
+    const [depsChecker, funcToolChecker, ,] = createTestChecker(true, false, true, false);
+
+    const shouldContinue = await depsChecker.resolve();
+
+    expect(shouldContinue).to.be.equal(true);
+    expect(await funcToolChecker.getFuncCommand()).to.be.equal("npx azure-functions-core-tools@3");
+  });
+
+  test("not install + not backend", async function (this: Mocha.Context) {
+    if (await funcUtils.isFuncCoreToolsInstalled()) {
+      this.skip();
+    }
+    const [depsChecker, funcToolChecker, ,] = createTestChecker(false);
+
+    const shouldContinue = await depsChecker.resolve();
+
+    expect(shouldContinue).to.be.equal(true);
+    expect(await funcToolChecker.getFuncCommand()).to.be.equal("npx azure-functions-core-tools@3");
+  });
+
+  test("already install + linux", async function (this: Mocha.Context) {
+    if (!(await funcUtils.isFuncCoreToolsInstalled()) || !isLinux()) {
+      this.skip();
+    }
+
+    const [depsChecker, funcToolChecker, testAdapter] = createTestChecker(true);
+    sandbox.on(testAdapter, "displayLearnMore");
+    const shouldContinue = await depsChecker.resolve();
+
+    expect(shouldContinue).to.be.equal(true);
+    expect(testAdapter.displayLearnMore).to.be.called.exactly(0);
+    expect(await funcToolChecker.getFuncCommand()).to.be.equal("func", `should use global func`);
+    await assertFuncStart(funcToolChecker);
+  });
+
+  test("already install + old func version(v2)", async function (this: Mocha.Context) {
+    const funcVersion = await funcUtils.getFuncCoreToolsVersion();
+    if (isLinux()) {
+      this.skip();
+    }
+    if (funcVersion == null || (await funcUtils.isFuncCoreToolsInstalled())) {
+      this.skip();
+    }
+
+    const [depsChecker, funcToolChecker, ,] = createTestChecker(true);
+    const shouldContinue = await depsChecker.resolve();
+
+    expect(shouldContinue).to.be.equal(true);
+    assert.isTrue(
+      /node "[^"]*"$/g.test(await funcToolChecker.getFuncCommand()),
+      `should use portable func`
+    );
+    await assertFuncStart(funcToolChecker);
+  });
 });
 
 async function assertFuncStart(funcToolChecker: FuncToolChecker): Promise<void> {
