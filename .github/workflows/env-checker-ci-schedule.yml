@@ -68,9 +68,9 @@ jobs:
       - name: Setup project with Retry
         uses: nick-invision/retry@v2
         with:
-          timeout_minutes: 5
+          timeout_minutes: 15
           max_attempts: 3
-          retry_wait_seconds: 3
+          retry_wait_seconds: 10
           on_retry_command: git clean -fXd .
           command: |
             npx lerna exec -- rm -rf node_modules
