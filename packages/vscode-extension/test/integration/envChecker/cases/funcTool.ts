@@ -76,7 +76,7 @@ suite("FuncToolChecker E2E Test", async () => {
 
     // first: throw timeout error
     const [depsChecker, funcToolChecker, testAdapter] = createTestChecker(true);
-    const displayLearnMore = sandbox.on(testAdapter, "displayLearnMore");
+    sandbox.on(testAdapter, "displayLearnMore");
     sandbox.on(funcToolChecker, "doInstallPortableFunc", async () =>
       console.log("spy on doInstallPortableFunc")
     );
@@ -84,7 +84,7 @@ suite("FuncToolChecker E2E Test", async () => {
     const shouldContinueFirst = await depsChecker.resolve();
 
     assert.equal(shouldContinueFirst, false);
-    expect(displayLearnMore).to.be.called.exactly(1);
+    expect(testAdapter.displayLearnMore).to.be.called.exactly(1);
 
     // second: still works well
     sandbox.restore(testAdapter, "displayLearnMore");
@@ -92,7 +92,7 @@ suite("FuncToolChecker E2E Test", async () => {
     const shouldContinueSecond = await depsChecker.resolve();
 
     expect(shouldContinueSecond).to.be.equal(true, "second run, should success");
-    expect(displayLearnMore).to.be.called.exactly(0);
+    expect(testAdapter.displayLearnMore).to.be.called.exactly(0);
     await assertFuncStart(funcToolChecker);
   });
 
