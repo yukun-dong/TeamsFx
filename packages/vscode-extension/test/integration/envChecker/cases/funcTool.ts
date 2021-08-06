@@ -82,7 +82,7 @@ suite("FuncToolChecker E2E Test", async () => {
     expect(displayLearnMore).to.be.called.exactly(1);
 
     // second: still works well
-    chai.spy.restore(testAdapter, "displayLearnMore");
+    displayLearnMore.restore();
     chai.spy.restore(funcToolChecker, "doInstallPortableFunc");
     const shouldContinueSecond = await depsChecker.resolve();
 
