@@ -20,6 +20,7 @@ chai.use(spies);
 const expect = chai.expect;
 const spy = chai.spy;
 const assert = chai.assert;
+const sandbox = chai.spy.sandbox();
 
 function createTestChecker(
   hasTeamsfxBackend: boolean,
@@ -44,6 +45,8 @@ function createTestChecker(
 suite("FuncToolChecker E2E Test", async () => {
   setup(async function (this: Mocha.Context) {
     await funcUtils.cleanup();
+    sandbox.restore();
+    console.error("setup meifans");
   });
 
   test("not install + special character dir", async function (this: Mocha.Context) {
@@ -52,7 +55,7 @@ suite("FuncToolChecker E2E Test", async () => {
     }
 
     const [depsChecker, funcToolChecker, ,] = createTestChecker(true);
-    spy.on(funcToolChecker, "getDefaultInstallPath", () =>
+    sandbox.on(funcToolChecker, "getDefaultInstallPath", () =>
       path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "func", "Aarón García", "for test")
     );
 
@@ -73,8 +76,8 @@ suite("FuncToolChecker E2E Test", async () => {
 
     // first: throw timeout error
     const [depsChecker, funcToolChecker, testAdapter] = createTestChecker(true);
-    const displayLearnMore = spy.on(testAdapter, "displayLearnMore");
-    spy.on(funcToolChecker, "doInstallPortableFunc", async () => {});
+    const displayLearnMore = sandbox.on(testAdapter, "displayLearnMore");
+    sandbox.on(funcToolChecker, "doInstallPortableFunc", async () => {});
 
     const shouldContinueFirst = await depsChecker.resolve();
 
@@ -82,8 +85,8 @@ suite("FuncToolChecker E2E Test", async () => {
     expect(displayLearnMore).to.be.called.exactly(1);
 
     // second: still works well
-    displayLearnMore.restore();
-    chai.spy.restore(funcToolChecker, "doInstallPortableFunc");
+    sandbox.restore(testAdapter, "displayLearnMore");
+    sandbox.restore(funcToolChecker, "doInstallPortableFunc");
     const shouldContinueSecond = await depsChecker.resolve();
 
     expect(shouldContinueSecond).to.be.equal(true, "second run, should success");
@@ -133,7 +136,7 @@ suite("FuncToolChecker E2E Test", async () => {
     }
 
     const [depsChecker, funcToolChecker, testAdapter] = createTestChecker(true);
-    chai.spy.on(testAdapter, "displayLearnMore");
+    sandbox.on(testAdapter, "displayLearnMore");
     const shouldContinue = await depsChecker.resolve();
 
     expect(shouldContinue).to.be.equal(true);
