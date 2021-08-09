@@ -45,6 +45,7 @@ import { CLIAdapter } from "./depsChecker/cliAdapter";
 import { cliEnvCheckerTelemetry } from "./depsChecker/cliTelemetry";
 import { isWindows } from "./depsChecker/common";
 import { URL } from "url";
+import { SPFxNodeChecker } from "./depsChecker/spfxNodeChecker";
 
 export default class Preview extends YargsCommand {
   public readonly commandHead = `preview`;
@@ -188,6 +189,10 @@ export default class Preview extends YargsCommand {
 
     if (includeSpfx) {
       const spfxRoot = path.join(workspaceFolder, constants.spfxFolderName);
+      const envCheckerResult = await this.handleSpfxDependences();
+      if (envCheckerResult.isErr()) {
+        return err(envCheckerResult.error);
+      }
       return this.spfxPreview(spfxRoot, browser, "https://localhost:5432/workbench");
     }
 
@@ -206,7 +211,7 @@ export default class Preview extends YargsCommand {
       return err(errors.RequiredPathNotExists(botRoot));
     }
 
-    const envCheckerResult = await this.handleDependences(includeBackend);
+    const envCheckerResult = await this.handleFunctionDependences(includeBackend);
     if (envCheckerResult.isErr()) {
       return err(envCheckerResult.error);
     }
@@ -1021,7 +1026,7 @@ export default class Preview extends YargsCommand {
     this.backgroundTasks = [];
   }
 
-  private async handleDependences(
+  private async handleFunctionDependences(
     hasBackend: boolean
   ): Promise<Result<[FuncToolChecker, DotnetChecker], FxError>> {
     const cliAdapter = new CLIAdapter(hasBackend, cliEnvCheckerTelemetry);
@@ -1052,5 +1057,22 @@ export default class Preview extends YargsCommand {
     }
 
     return ok([funcChecker, dotnetChecker]);
+  }
+
+  private async handleSpfxDependences(): Promise<Result<null, FxError>> {
+    const cliAdapter = new CLIAdapter(false, cliEnvCheckerTelemetry);
+    const nodeChecker = new SPFxNodeChecker(
+      cliAdapter,
+      cliEnvCheckerLogger,
+      cliEnvCheckerTelemetry
+    );
+    const depsChecker = new DepsChecker(cliEnvCheckerLogger, cliAdapter, [nodeChecker]);
+
+    const shouldContinue = await depsChecker.resolve();
+    if (!shouldContinue) {
+      return err(errors.DependencyCheckerFailed());
+    }
+
+    return ok(null);
   }
 }
