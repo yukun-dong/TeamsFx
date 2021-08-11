@@ -45,6 +45,7 @@ import * as fs from "fs-extra";
 import { ScaffoldArmTemplateResult } from "../../../common/armInterface";
 import { ConstantString, ResourcePlugins } from "../../../common/constants";
 import { getTemplatesFolder } from "../../..";
+import { ResourcePermission } from "../../../common/permissionInterface";
 
 export class AadAppForTeamsImpl {
   public async provision(ctx: PluginContext, isLocalDebug = false): Promise<AadResult> {
@@ -338,6 +339,7 @@ export class AadAppForTeamsImpl {
   public async checkPermission(ctx: PluginContext): Promise<AadResult> {
     let isAadOwner;
     let checkAadPermissionError;
+    let objectId;
     try {
       await TokenProvider.init(ctx, TokenAudience.Graph);
       const userInfo = ctx.configOfOtherPlugins
@@ -348,20 +350,23 @@ export class AadAppForTeamsImpl {
       }
       const userInfoObject = JSON.parse(userInfo as string);
       const userObjectId = userInfoObject["aadId"];
-      const objectId: string = ctx.config.get(ConfigKeys.objectId) as string;
+      objectId = ctx.config.get(ConfigKeys.objectId) as string;
       isAadOwner = await await AadAppClient.checkPermission(objectId, userObjectId);
     } catch (e) {
       checkAadPermissionError = e;
     }
 
-    return ResultFactory.Success([
+    const result: ResourcePermission[] = [
       {
         name: Constants.permissions.name,
         type: Constants.permissions.type,
         roles: isAadOwner ? [Constants.permissions.owner] : [Constants.permissions.noPermission],
         error: checkAadPermissionError,
+        resourceId: objectId,
       },
-    ]);
+    ];
+
+    return ResultFactory.Success(result);
   }
 
   private static getRedirectUris(
