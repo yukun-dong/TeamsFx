@@ -54,6 +54,7 @@ export const mockedFehostScaffoldArmResult = {
     ParameterTemplate: {
       Content: "Mocked frontend hosting parameter content",
       ParameterJson: { FrontendParameter: "FrontendParameterValue" },
+      Params: ["mockedFrontendHostingParam1", "mockedFrontendHostingParam2"],
     },
     VariableTemplate: {
       Content: "Mocked frontend hosting variable content",
@@ -81,6 +82,7 @@ export const mockedSimpleAuthScaffoldArmResult = {
     ParameterTemplate: {
       Content: "Mocked simple auth parameter content",
       ParameterJson: { SimpleAuthParameter: "SimpleAuthParameterValue" },
+      Params: ["mockedSimpleAuthParam1", "mockedSimpleAuthParam2"],
     },
     VariableTemplate: {
       Content: "Mocked simple auth variable content",
@@ -99,5 +101,11 @@ export const mockedSimpleAuthScaffoldArmResult = {
 };
 
 export const mockedAadScaffoldArmResult = {
-  Orchestration: {},
+  Orchestration: {
+    ParameterTemplate: {
+      Content: "Mocked aad parameter content",
+      ParameterJson: { AadParameter: "AadParameterValue" },
+      Params: ["mockedAadParam1", "mockedAadParam1"],
+    },
+  },
 };

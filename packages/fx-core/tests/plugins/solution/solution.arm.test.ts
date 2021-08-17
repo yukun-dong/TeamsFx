@@ -76,6 +76,7 @@ describe("Generate ARM Template for project", () => {
   beforeEach(() => {
     fileContent.clear();
     mocker.stub(fs, "writeFile").callsFake((path: number | PathLike, data: any) => {
+      console.log(`[debug] mocked write file ${path.toString()}, data: ${data}`);
       fileContent.set(path.toString(), data);
     });
   });
@@ -132,7 +133,7 @@ describe("Generate ARM Template for project", () => {
 
     const result = await generateArmTemplate(mockedCtx);
     expect(result.isOk()).to.be.true;
-    expect(fileContent.get(path.join(templateFolder, "main.bicep"))).equals(
+    expect(fileContent.get(path.join(templateFolder, "resourceGroup.bicep"))).equals(
       `param resourceBaseName string
 Mocked frontend hosting parameter content
 Mocked simple auth parameter content

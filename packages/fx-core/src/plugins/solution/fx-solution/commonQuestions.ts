@@ -17,6 +17,7 @@ import { GLOBAL_CONFIG, RESOURCE_GROUP_NAME, SolutionError } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { PluginDisplayName } from "../../../common/constants";
+import { getDefaultResourceGroupName } from "../../../common";
 
 export type AzureSubscription = {
   displayName: string;
@@ -60,7 +61,6 @@ export async function checkSubscription(
  */
 async function askCommonQuestions(
   ctx: SolutionContext,
-  appName: string,
   config: SolutionConfig,
   azureAccountProvider?: AzureAccountProvider,
   appstudioTokenJson?: object
@@ -112,7 +112,7 @@ async function askCommonQuestions(
       needCreateResourceGroup = true;
     }
   } else {
-    resourceGroupName = `${appName.replace(" ", "_")}-rg`;
+    resourceGroupName = getDefaultResourceGroupName(ctx);
     needCreateResourceGroup = true;
   }
   if (needCreateResourceGroup) {
@@ -183,19 +183,12 @@ async function askCommonQuestions(
  */
 export async function fillInCommonQuestions(
   ctx: SolutionContext,
-  appName: string,
   config: SolutionConfig,
   azureAccountProvider?: AzureAccountProvider,
   // eslint-disable-next-line @typescript-eslint/ban-types
   appStudioJson?: object
 ): Promise<Result<SolutionConfig, FxError>> {
-  const result = await askCommonQuestions(
-    ctx,
-    appName,
-    config,
-    azureAccountProvider,
-    appStudioJson
-  );
+  const result = await askCommonQuestions(ctx, config, azureAccountProvider, appStudioJson);
   if (result.isOk()) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const globalConfig = config.get(GLOBAL_CONFIG)!;

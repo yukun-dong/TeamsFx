@@ -556,3 +556,17 @@ export function getAppStudioEndpoint(): string {
     return "https://dev.teams.microsoft.com";
   }
 }
+
+export function getDefaultResourceGroupName(ctx: SolutionContext): string {
+  // TODO: interactively ask user to choose existing resource group name or create new
+  const appName = ctx.projectSettings?.appName;
+  if (!appName) {
+    return "";
+  }
+  return `${appName.replace(" ", "_")}-rg`;
+}
+
+export function getDeploymentLocation(): string {
+  // interactively ask user to choose deployment location
+  return "eastus";
+}

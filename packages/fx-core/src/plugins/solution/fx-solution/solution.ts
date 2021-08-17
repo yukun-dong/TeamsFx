@@ -558,10 +558,8 @@ export class TeamsAppSolution implements Solution {
 
     if (this.isAzureProject(ctx)) {
       //1. ask common questions for azure resources.
-      const appName = ctx.projectSettings!.appName;
       const res = await fillInCommonQuestions(
         ctx,
-        appName,
         ctx.config,
         ctx.azureAccountProvider,
         await ctx.appStudioToken?.getJsonObject()

@@ -25,8 +25,8 @@
     "DeployArmTemplates": {
       "StartNotice": "[%s] Start deploying ARM templates.",
       "CompileBicepSuccessNotice": "[%s] Successfully compile bicep files to JSON.",
-      "SuccessNotice": "[%s] Successfully deploy ARM templates. Resource group name: %s. Deployment name: %s",
-      "FailNotice": "[%s] Failed to deploy ARM templates. Resource group name: %s. Deployment name: %s",
+      "SuccessNotice": "[%s] Successfully deploy ARM templates. Deployment name: %s.",
+      "FailNotice": "[%s] Failed to deploy ARM templates. Deployment name: %s.",
       "PollDeploymentStatusNotice": "[%s] Polling deployment status...",
       "Progress": {
         "Title": "Deploying ARM Templates",

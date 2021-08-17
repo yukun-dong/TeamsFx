@@ -19,22 +19,25 @@ import { compileHandlebarsTemplateString, getStrings } from "../../../common";
 import path from "path";
 import * as fs from "fs-extra";
 import { ConstantString, PluginDisplayName } from "../../../common/constants";
-import { Executor } from "../../../common/tools";
 import {
-  ARM_TEMPLATE_OUTPUT,
-  GLOBAL_CONFIG,
-  PluginNames,
-  RESOURCE_GROUP_NAME,
-  SolutionError,
-} from "./constants";
+  Executor,
+  getDefaultResourceGroupName,
+  getDeploymentLocation,
+} from "../../../common/tools";
+import { ARM_TEMPLATE_OUTPUT, GLOBAL_CONFIG, PluginNames, SolutionError } from "./constants";
 import { ResourceManagementClient, ResourceManagementModels } from "@azure/arm-resources";
 import { DeployArmTemplatesSteps, ProgressHelper } from "./utils/progressHelper";
+import {
+  DeploymentListResult,
+  DeploymentOperationsListResult,
+} from "@azure/arm-resources/esm/models";
 
 const baseFolder = "./infra/azure";
 const templateFolder = "templates";
 const parameterFolder = "parameters";
-const bicepOrchestrationFileName = "main.bicep";
-const armTemplateJsonFileName = "main.json";
+const bicepResourceGroupFileName = "resourceGroup.bicep";
+const bicepSubscriptionFileName = "subscription.bicep";
+const armTemplateJsonFileName = "azuredeploy.json";
 const parameterTemplateFileName = "parameters.template.json";
 const parameterFileNameTemplate = "parameters.@envName.json";
 const solutionLevelParameters = `param resourceBaseName string\n`;
@@ -42,7 +45,12 @@ const solutionLevelParameterObject = {
   resourceBaseName: {
     value: "{{SOLUTION__RESOURCE_BASE_NAME}}",
   },
+  resourceGroupLocation: {
+    value: "{{SOLUTION__LOCATION}}",
+  },
 };
+const RESOURCE_GROUP_PROVISION = "resourceGroupProvision";
+const DEPLOYMENT_RESOURCE_TYPE = "Microsoft.Resources/deployments";
 
 // Get ARM template content from each resource plugin and output to project folder
 export async function generateArmTemplate(ctx: SolutionContext): Promise<Result<any, FxError>> {
@@ -84,13 +92,32 @@ export async function generateArmTemplate(ctx: SolutionContext): Promise<Result<
 
   // Write bicep content to project folder
   if (bicepOrchestrationTemplate.needsGenerateTemplate()) {
-    // Output main.bicep file
-    const bicepOrchestrationFileContent = bicepOrchestrationTemplate.getOrchestrationFileContent();
+    // Output resourceGroup.bicep file
+    const bicepResourceGroupFileContent =
+      bicepOrchestrationTemplate.getResourceGroupOrchestrationFileContent();
     const templateFolderPath = path.join(ctx.root, baseFolder, templateFolder);
     await fs.ensureDir(templateFolderPath);
     await fs.writeFile(
-      path.join(templateFolderPath, bicepOrchestrationFileName),
-      bicepOrchestrationFileContent
+      path.join(templateFolderPath, bicepResourceGroupFileName),
+      bicepResourceGroupFileContent
+    );
+
+    // Output subscription.bicep file
+    const defaultRresourceGroupName = getDefaultResourceGroupName(ctx);
+    if (!defaultRresourceGroupName) {
+      return err(
+        returnSystemError(
+          new Error("Failed to get resource group from project solution settings."),
+          PluginDisplayName.Solution,
+          SolutionError.FailedToDeployArmTemplatesToAzure
+        )
+      );
+    }
+    const bicepSubscriptionFileContent =
+      bicepOrchestrationTemplate.getSubscriptionOrchestrationFileContent(defaultRresourceGroupName);
+    await fs.writeFile(
+      path.join(templateFolderPath, bicepSubscriptionFileName),
+      bicepSubscriptionFileContent
     );
 
     // Output bicep module files from each resource plugin
@@ -122,16 +149,11 @@ export async function doDeployArmTemplates(ctx: SolutionContext): Promise<Result
   // update parameters
   const parameterJson = await getParameterJson(ctx);
 
-  const resourceGroupName = ctx.config.get(GLOBAL_CONFIG)?.getString(RESOURCE_GROUP_NAME);
-  if (!resourceGroupName) {
-    throw new Error("Failed to get resource group from project solution settings.");
-  }
-
   // Compile bicep file to json
   const templateDir = path.join(ctx.root, baseFolder, templateFolder);
   const armTemplateJsonFilePath = path.join(templateDir, armTemplateJsonFileName);
   await compileBicepToJson(
-    path.join(templateDir, bicepOrchestrationFileName),
+    path.join(templateDir, bicepSubscriptionFileName),
     armTemplateJsonFilePath
   );
   ctx.logProvider?.info(
@@ -143,8 +165,12 @@ export async function doDeployArmTemplates(ctx: SolutionContext): Promise<Result
 
   // deploy arm templates to azure
   const client = await getResourceManagementClientForArmDeployment(ctx);
-  const deploymentName = `${PluginDisplayName.Solution}_deployment`.replace(" ", "_").toLowerCase();
+  const subLevelDeploymentName = `${ctx.projectSettings!.appName.replace(
+    " ",
+    "_"
+  )}_sub_deployment`.toLowerCase();
   const deploymentParameters: ResourceManagementModels.Deployment = {
+    location: getDeploymentLocation(),
     properties: {
       parameters: parameterJson.parameters,
       template: JSON.parse(await fs.readFile(armTemplateJsonFilePath, ConstantString.UTF8Encoding)),
@@ -154,14 +180,13 @@ export async function doDeployArmTemplates(ctx: SolutionContext): Promise<Result
   let deploymentFinished = false;
   try {
     const result = client.deployments
-      .createOrUpdate(resourceGroupName, deploymentName, deploymentParameters)
+      .createOrUpdateAtSubscriptionScope(subLevelDeploymentName, deploymentParameters)
       .then((result) => {
         ctx.logProvider?.info(
           format(
             getStrings().solution.DeployArmTemplates.SuccessNotice,
             PluginDisplayName.Solution,
-            resourceGroupName,
-            deploymentName
+            subLevelDeploymentName
           )
         );
         ctx.config.get(GLOBAL_CONFIG)?.set(ARM_TEMPLATE_OUTPUT, result.properties?.outputs);
@@ -170,7 +195,7 @@ export async function doDeployArmTemplates(ctx: SolutionContext): Promise<Result
       .finally(() => {
         deploymentFinished = true;
       });
-    await pollDeploymentStatus(client, resourceGroupName, Date.now());
+    await pollDeploymentStatus(client, Date.now());
     await result;
     return ok(undefined);
   } catch (error) {
@@ -178,8 +203,7 @@ export async function doDeployArmTemplates(ctx: SolutionContext): Promise<Result
       format(
         getStrings().solution.DeployArmTemplates.FailNotice,
         PluginDisplayName.Solution,
-        resourceGroupName,
-        deploymentName
+        subLevelDeploymentName
       )
     );
     throw new Error(`Failed to deploy arm templates to azure. Error: ${error.message}`);
@@ -187,8 +211,7 @@ export async function doDeployArmTemplates(ctx: SolutionContext): Promise<Result
 
   async function pollDeploymentStatus(
     client: ResourceManagementClient,
-    resourceGroupName: string,
-    deploymentStartTime: number
+    startTime: number
   ): Promise<void> {
     ctx.logProvider?.info(
       format(
@@ -200,42 +223,102 @@ export async function doDeployArmTemplates(ctx: SolutionContext): Promise<Result
     const waitingTimeSpan = 10000;
     setTimeout(async () => {
       if (!deploymentFinished) {
-        const deployments = await client.deployments.listByResourceGroup(resourceGroupName);
-        deployments.forEach(async (deployment) => {
-          if (
-            deployment.properties?.timestamp &&
-            deployment.properties.timestamp.getTime() > deploymentStartTime
-          ) {
-            ctx.logProvider?.info(
-              `[${PluginDisplayName.Solution}] ${deployment.name} -> ${deployment.properties.provisioningState}`
-            );
-            if (deployment.properties.error) {
-              ctx.logProvider?.error(
-                `[${PluginDisplayName.Solution}] ${deployment.name} -> ${JSON.stringify(
-                  deployment.properties.error,
-                  undefined,
-                  2
-                )}`
-              );
-              const operations = await client.deploymentOperations.list(
-                resourceGroupName,
-                deploymentName
-              );
-              operations.forEach((op) => {
-                if (op.properties?.statusCode != "OK") {
-                  ctx.logProvider?.error(
-                    `[${PluginDisplayName.Solution}] ${
-                      op.properties?.targetResource?.resourceName
-                    } -> ${JSON.stringify(op.properties?.statusMessage, undefined, 2)}`
-                  );
-                }
-              });
-            }
-          }
-        });
-        pollDeploymentStatus(client, resourceGroupName, deploymentStartTime);
+        const subLevelDeployments = await client.deployments.listAtSubscriptionScope();
+        logDeploymentStatus(subLevelDeployments, subLevelDeploymentName, startTime);
+
+        const operations = await client.deploymentOperations.listAtSubscriptionScope(
+          subLevelDeploymentName
+        );
+        await logDeploymentOperationStatus(operations, startTime, "\t");
+        await pollDeploymentStatus(client, startTime);
       }
     }, waitingTimeSpan);
+  }
+
+  function logDeploymentStatus(
+    deployments: DeploymentListResult,
+    deploymentName: string,
+    deployStartTime: number,
+    logPrefix = ""
+  ): void {
+    for (let i = 0; i < deployments.length; i++) {
+      const deployment = deployments[i];
+      if (
+        deployment.name === deploymentName &&
+        deployment.properties?.timestamp &&
+        deployment.properties.timestamp.getTime() > deployStartTime
+      ) {
+        ctx.logProvider?.info(
+          `[${PluginDisplayName.Solution}] ${logPrefix}${deploymentName} -> ${deployment.properties.provisioningState}`
+        );
+        if (deployment.properties.error) {
+          ctx.logProvider?.error(
+            `[${PluginDisplayName.Solution}] ${deploymentName} -> ${JSON.stringify(
+              deployment.properties.error,
+              undefined,
+              2
+            )}`
+          );
+        }
+      }
+    }
+  }
+
+  async function logDeploymentOperationStatus(
+    operations: DeploymentOperationsListResult,
+    deployStartTime: number,
+    logPrefix = ""
+  ): Promise<void> {
+    for (let i = 0; i < operations.length; i++) {
+      const op = operations[i];
+      if (
+        op.properties?.timestamp &&
+        op.properties.timestamp.getTime() > deployStartTime &&
+        op.properties.targetResource
+      ) {
+        ctx.logProvider?.info(
+          `[${PluginDisplayName.Solution}] ${logPrefix}[${op.properties.provisioningOperation}] ${op.properties?.targetResource?.resourceName} -> ${op.properties?.provisioningState}`
+        );
+
+        if (op.properties?.statusCode != "OK" && op.properties?.statusMessage) {
+          ctx.logProvider?.error(
+            `[${PluginDisplayName.Solution}] ${
+              op.properties?.targetResource?.resourceName
+            } -> ${JSON.stringify(op.properties?.statusMessage, undefined, 2)}`
+          );
+        }
+        if (
+          op.properties?.targetResource?.resourceType == DEPLOYMENT_RESOURCE_TYPE &&
+          op.properties.provisioningOperation === "Create"
+        ) {
+          const rgDeploymentName = op.properties.targetResource.resourceName;
+          if (!rgDeploymentName) {
+            ctx.logProvider?.debug("Failed to get resource group deployment name.");
+            return;
+          }
+
+          const resourceGroupName: string = getResourceGroupFromDeploymentId(
+            op.properties.targetResource.id
+          );
+
+          const rgOperations = await client.deploymentOperations.list(
+            resourceGroupName,
+            rgDeploymentName
+          );
+          await logDeploymentOperationStatus(rgOperations, deployStartTime, `${logPrefix}\t\t`);
+        }
+      }
+    }
+  }
+
+  function getResourceGroupFromDeploymentId(deploymentId: string | undefined) {
+    if (deploymentId) {
+      const resultArr = deploymentId.match(/\/resourceGroups\/[a-zA-Z_0-9-]*/);
+      if (resultArr && resultArr.length > 0) {
+        return resultArr[0].substring(16);
+      }
+    }
+    return "";
   }
 }
 
@@ -381,6 +464,8 @@ class BicepOrchestrationContent {
   private VariableTemplate = "";
   private ModuleTemplate = "";
   private OutputTemplate = "";
+  private resourceGroupParamsTemplate = "";
+  private resourceGroupOutputTemplate = "";
   private ParameterJsonTemplate: Record<string, unknown> = solutionLevelParameterObject;
   private RenderContenxt: ArmTemplateRenderContext;
   private TemplateAdded = false;
@@ -402,6 +487,15 @@ class BicepOrchestrationContent {
     this.OutputTemplate += this.normalizeTemplateSnippet(
       scaffoldResult.Orchestration.OutputTemplate?.Content
     );
+
+    scaffoldResult.Orchestration.ParameterTemplate?.Params?.forEach((param) => {
+      this.resourceGroupParamsTemplate += `\t\t${param}: ${param}\n`;
+    });
+
+    this.resourceGroupOutputTemplate += this.normalizeTemplateSnippet(
+      this.getResourceGroupOutputTemplate(scaffoldResult.Orchestration.OutputTemplate?.Content)
+    );
+
     // update context to render the template
     this.RenderContenxt.addPluginOutput(pluginName, scaffoldResult);
     // Update parameters for bicep file
@@ -411,12 +505,55 @@ class BicepOrchestrationContent {
     );
   }
 
-  public getOrchestrationFileContent(): string {
+  private getResourceGroupOutputTemplate(source: string | undefined) {
+    if (!source) {
+      return "";
+    }
+
+    let result = "";
+    const keyArr = source.match(/output [a-zA-Z_0-9]* string/g);
+    keyArr?.forEach((key) => {
+      key = key.substring(6, key.length - 6).trim();
+      result += `output ${key} string = ${RESOURCE_GROUP_PROVISION}.outputs.${key}\n`;
+    });
+    return result;
+  }
+
+  public getResourceGroupOrchestrationFileContent(): string {
     let orchestrationTemplate = "";
     orchestrationTemplate += this.normalizeTemplateSnippet(this.ParameterTemplate, false) + "\n";
     orchestrationTemplate += this.normalizeTemplateSnippet(this.VariableTemplate, false) + "\n";
     orchestrationTemplate += this.normalizeTemplateSnippet(this.ModuleTemplate, false) + "\n";
     orchestrationTemplate += this.normalizeTemplateSnippet(this.OutputTemplate, false);
+
+    return compileHandlebarsTemplateString(orchestrationTemplate, this.RenderContenxt).trim();
+  }
+
+  public getSubscriptionOrchestrationFileContent(defaultResourceGroupName: string): string {
+    let orchestrationTemplate = `targetScope = 'subscription'\nparam resourceGroupName string = '${defaultResourceGroupName}'\nparam resourceGroupLocation string = 'eastus'\n`;
+    orchestrationTemplate += this.normalizeTemplateSnippet(this.ParameterTemplate, false) + "\n";
+
+    orchestrationTemplate +=
+      this.normalizeTemplateSnippet(
+        `
+resource myResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+    location: resourceGroupLocation
+    name: resourceGroupName
+}
+
+module ${RESOURCE_GROUP_PROVISION} '${bicepResourceGroupFileName}' = {
+  name: '${RESOURCE_GROUP_PROVISION}'
+  scope: resourceGroup(resourceGroupName)
+  params: {
+    resourceBaseName: resourceGroupName
+${this.resourceGroupParamsTemplate}  }
+}
+`,
+        false
+      ) + "\n";
+
+    orchestrationTemplate +=
+      this.normalizeTemplateSnippet(this.resourceGroupOutputTemplate, false) + "\n";
 
     return compileHandlebarsTemplateString(orchestrationTemplate, this.RenderContenxt).trim();
   }
