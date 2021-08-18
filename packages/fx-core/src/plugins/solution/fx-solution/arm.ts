@@ -165,6 +165,8 @@ export async function doDeployArmTemplates(ctx: SolutionContext): Promise<Result
 
   // deploy arm templates to azure
   const client = await getResourceManagementClientForArmDeployment(ctx);
+  // TODO: generate sub deployment name with app name and suffix. Store the generated deployment name somewhere
+  // so the deployment name can be reused and deployment can be in the same history.
   const subLevelDeploymentName = `${ctx.projectSettings!.appName.replace(
     " ",
     "_"
@@ -543,7 +545,7 @@ resource myResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 
 module ${RESOURCE_GROUP_PROVISION} '${bicepResourceGroupFileName}' = {
   name: '${RESOURCE_GROUP_PROVISION}'
-  scope: resourceGroup(resourceGroupName)
+  scope: myResourceGroup
   params: {
     resourceBaseName: resourceGroupName
 ${this.resourceGroupParamsTemplate}  }
