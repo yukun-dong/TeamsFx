@@ -490,9 +490,9 @@ class BicepOrchestrationContent {
       scaffoldResult.Orchestration.OutputTemplate?.Content
     );
 
-    scaffoldResult.Orchestration.ParameterTemplate?.Params?.forEach((param) => {
-      this.resourceGroupParamsTemplate += `\t\t${param}: ${param}\n`;
-    });
+    this.resourceGroupParamsTemplate += this.getParamKey(
+      scaffoldResult.Orchestration.ParameterTemplate?.Content
+    );
 
     this.resourceGroupOutputTemplate += this.normalizeTemplateSnippet(
       this.getResourceGroupOutputTemplate(scaffoldResult.Orchestration.OutputTemplate?.Content)
@@ -507,15 +507,29 @@ class BicepOrchestrationContent {
     );
   }
 
+  private getParamKey(parameterTemplate: string | undefined): string {
+    let result = "";
+    if (!parameterTemplate) {
+      return result;
+    }
+
+    const paramArr = parameterTemplate.match(/param [a-zA-Z_0-9-]* /g);
+    paramArr?.forEach((param) => {
+      param = param.substring(5, param.length).trim();
+      result += `\t\t${param}: ${param}\n`;
+    });
+    return result;
+  }
+
   private getResourceGroupOutputTemplate(source: string | undefined) {
     if (!source) {
       return "";
     }
 
     let result = "";
-    const keyArr = source.match(/output [a-zA-Z_0-9]* string/g);
+    const keyArr = source.match(/output [a-zA-Z_0-9-]* /g);
     keyArr?.forEach((key) => {
-      key = key.substring(6, key.length - 6).trim();
+      key = key.substring(6, key.length).trim();
       result += `output ${key} string = ${RESOURCE_GROUP_PROVISION}.outputs.${key}\n`;
     });
     return result;
@@ -539,8 +553,8 @@ class BicepOrchestrationContent {
       this.normalizeTemplateSnippet(
         `
 resource myResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-    location: resourceGroupLocation
-    name: resourceGroupName
+  location: resourceGroupLocation
+  name: resourceGroupName
 }
 
 module ${RESOURCE_GROUP_PROVISION} '${bicepResourceGroupFileName}' = {

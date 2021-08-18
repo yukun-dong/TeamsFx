@@ -184,7 +184,6 @@ export class SimpleAuthPluginImpl {
       Orchestration: {
         ParameterTemplate: {
           Content: await fs.readFile(parameterTemplateFilePath, "utf-8"),
-          Params: ["simpleAuth_sku", "simpleAuth_serverFarmsName", "simpleAuth_webAppName"],
         },
         ModuleTemplate: {
           Content: await fs.readFile(resourceTemplateFilePath, "utf-8"),

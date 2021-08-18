@@ -356,7 +356,6 @@ export class FrontendPluginImpl {
             inputParameterOrchestrationFilePath,
             ConstantString.UTF8Encoding
           ),
-          Params: ["frontendHosting_storageName"],
         },
         ModuleTemplate: {
           Content: await fs.readFile(moduleOrchestrationFilePath, ConstantString.UTF8Encoding),

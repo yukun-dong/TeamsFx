@@ -310,7 +310,6 @@ export class AadAppForTeamsImpl {
           ParameterJson: JSON.parse(
             await fs.readFile(parameterFilePath, ConstantString.UTF8Encoding)
           ),
-          Params: ["aadClientId", "aadClientSecret", "m365TenantId", "m365OauthAuthorityHost"],
         },
         VariableTemplate: {
           Content: await fs.readFile(variablesOrchestrationFilePath, ConstantString.UTF8Encoding),
