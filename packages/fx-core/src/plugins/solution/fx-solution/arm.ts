@@ -172,7 +172,7 @@ export async function doDeployArmTemplates(ctx: SolutionContext): Promise<Result
     "_"
   )}_sub_deployment`.toLowerCase();
   const deploymentParameters: ResourceManagementModels.Deployment = {
-    location: getDeploymentLocation(),
+    location: "eastus",
     properties: {
       parameters: parameterJson.parameters,
       template: JSON.parse(await fs.readFile(armTemplateJsonFilePath, ConstantString.UTF8Encoding)),
@@ -546,7 +546,7 @@ class BicepOrchestrationContent {
   }
 
   public getSubscriptionOrchestrationFileContent(defaultResourceGroupName: string): string {
-    let orchestrationTemplate = `targetScope = 'subscription'\nparam resourceGroupName string = '${defaultResourceGroupName}'\nparam resourceGroupLocation string = 'eastus'\n`;
+    let orchestrationTemplate = `targetScope = 'subscription'\nparam resourceGroupName string = '${defaultResourceGroupName}'\nparam resourceGroupLocation string = '${getDeploymentLocation()}'\n`;
     orchestrationTemplate += this.normalizeTemplateSnippet(this.ParameterTemplate, false) + "\n";
 
     orchestrationTemplate +=
