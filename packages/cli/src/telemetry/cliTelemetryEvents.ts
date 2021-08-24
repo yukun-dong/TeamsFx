@@ -58,6 +58,9 @@ export enum TelemetryEvent {
 
   GrantPermissionStart = "grant-permission-start",
   GrantPermission = "grant-permission",
+
+  ListCollaboratorStart = "list-collaborator-start",
+  ListCollaborator = "list-collaborator",
 }
 
 export enum TelemetryProperty {

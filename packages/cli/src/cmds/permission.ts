@@ -111,12 +111,56 @@ export class PermissionGrant extends YargsCommand {
   }
 }
 
+export class PermissionListCollaborator extends YargsCommand {
+  public readonly commandHead = `list-collaborator`;
+  public readonly command = `${this.commandHead}`;
+  public readonly description = "List all collaborators";
+
+  public params: { [_: string]: Options } = {};
+
+  public builder(yargs: Argv): Argv<any> {
+    this.params = HelpParamGenerator.getYargsParamForHelp(Stage.listCollaborator);
+    return yargs.option(this.params);
+  }
+
+  public async runCommand(args: { [argName: string]: string }): Promise<Result<null, FxError>> {
+    const rootFolder = path.resolve(args.folder || "./");
+    CliTelemetry.withRootFolder(rootFolder).sendTelemetryEvent(
+      TelemetryEvent.ListCollaboratorStart
+    );
+
+    const result = await activate(rootFolder);
+    if (result.isErr()) {
+      CliTelemetry.sendTelemetryErrorEvent(TelemetryEvent.ListCollaborator, result.error);
+      return err(result.error);
+    }
+
+    const core = result.value;
+    {
+      const result = await core.listCollaborator(getSystemInputs(rootFolder, args.env));
+      if (result.isErr()) {
+        CliTelemetry.sendTelemetryErrorEvent(TelemetryEvent.ListCollaborator, result.error);
+        return err(result.error);
+      }
+    }
+
+    CliTelemetry.sendTelemetryEvent(TelemetryEvent.ListCollaborator, {
+      [TelemetryProperty.Success]: TelemetrySuccess.Yes,
+    });
+    return ok(null);
+  }
+}
+
 export default class Permission extends YargsCommand {
   public readonly commandHead = `permission`;
   public readonly command = `${this.commandHead} <action>`;
   public readonly description = "Check, grant and list user permission.";
 
-  public readonly subCommands: YargsCommand[] = [new PermissionStatus(), new PermissionGrant()];
+  public readonly subCommands: YargsCommand[] = [
+    new PermissionStatus(),
+    new PermissionGrant(),
+    new PermissionListCollaborator(),
+  ];
 
   public builder(yargs: Argv): Argv<any> {
     this.subCommands.forEach((cmd) => {
