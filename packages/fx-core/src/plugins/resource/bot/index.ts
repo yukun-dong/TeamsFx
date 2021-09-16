@@ -176,13 +176,14 @@ export class TeamsBot implements Plugin {
     sendTelemetry: boolean,
     name: string
   ): FxResult {
+    let errorMsg = e.message;
     if (e.innerError) {
-      e.message += ` Detailed error: ${e.innerError.message}.`;
+      errorMsg += ` Detailed error: ${e.innerError.message}.`;
       if (e.innerError.response?.data?.errorMessage) {
-        e.message += ` Reason: ${e.innerError.response?.data?.errorMessage}`;
+        errorMsg += ` Reason: ${e.innerError.response?.data?.errorMessage}`;
       }
     }
-    Logger.error(e.message);
+    Logger.error(errorMsg);
     if (e instanceof UserError || e instanceof SystemError) {
       const res = err(e);
       sendTelemetry && telemetryHelper.sendResultEvent(context, name, res);
@@ -192,8 +193,8 @@ export class TeamsBot implements Plugin {
     if (e instanceof PluginError) {
       const result =
         e.errorType === ErrorType.System
-          ? ResultFactory.SystemError(e.name, e.genMessage(), e.innerError)
-          : ResultFactory.UserError(e.name, e.genMessage(), e.showHelpLink, e.innerError);
+          ? ResultFactory.SystemError(e.name, e.genMessage(errorMsg), e.innerError)
+          : ResultFactory.UserError(e.name, e.genMessage(errorMsg), e.showHelpLink, e.innerError);
       sendTelemetry && telemetryHelper.sendResultEvent(context, name, result);
       return result;
     } else {
@@ -203,9 +204,9 @@ export class TeamsBot implements Plugin {
         telemetryHelper.sendResultEvent(
           context,
           name,
-          ResultFactory.SystemError(UnhandledErrorCode, `Got an unhandled error: ${e.message}`)
+          ResultFactory.SystemError(UnhandledErrorCode, `Got an unhandled error: ${errorMsg}`)
         );
-      return ResultFactory.SystemError(UnhandledErrorCode, e.message, e);
+      return ResultFactory.SystemError(UnhandledErrorCode, errorMsg, e);
     }
   }
 

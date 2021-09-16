@@ -36,8 +36,8 @@ export class PluginError extends Error {
     Object.setPrototypeOf(this, PluginError.prototype);
   }
 
-  genMessage(): string {
-    return `${this.message} Suggestions: ${this.suggestions.join(" ")}`;
+  genMessage(verboseErrMsg?: string): string {
+    return `${verboseErrMsg ?? this.message} Suggestions: ${this.suggestions.join(" ")}`;
   }
 }
 
