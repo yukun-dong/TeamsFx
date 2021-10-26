@@ -269,6 +269,7 @@ export function newPluginContext(): PluginContext {
           subscriptionId: "subscriptionId",
           tenantId: "tenantId",
           subscriptionName: "subscriptionName",
+          portalUrl: "portalUrl",
         });
       },
     },

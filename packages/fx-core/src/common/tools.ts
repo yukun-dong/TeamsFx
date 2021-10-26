@@ -375,7 +375,7 @@ export async function askSubscription(
         return {
           id: sub.subscriptionId,
           label: sub.subscriptionName,
-          data: sub.tenantId,
+          data: sub,
         } as OptionItem;
       });
       const askRes = await ui.selectOption({
@@ -386,10 +386,12 @@ export async function askSubscription(
       });
       if (askRes.isErr()) return err(askRes.error);
       const subItem = askRes.value.result as OptionItem;
+      const data = subItem.data as SubscriptionInfo;
       selectedSub = {
         subscriptionId: subItem.id,
         subscriptionName: subItem.label,
-        tenantId: subItem.data as string,
+        tenantId: data.tenantId,
+        portalUrl: data.portalUrl,
       };
     }
     if (selectedSub === undefined) {

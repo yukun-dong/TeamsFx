@@ -35,6 +35,7 @@ import {
   TreeItem,
   TreeCategory,
   LocalEnvironmentName,
+  SubscriptionInfo,
 } from "@microsoft/teamsfx-api";
 import {
   isUserCancelError,
@@ -75,6 +76,8 @@ import { WebviewPanel } from "./controls/webviewPanel";
 import * as constants from "./debug/constants";
 import {
   anonymizeFilePaths,
+  getResourceGroupNameFromEnv,
+  getSubscriptionInfoFromEnv,
   getTeamsAppIdByEnv,
   isSPFxProject,
   syncFeatureFlags,
@@ -1056,6 +1059,34 @@ export async function viewEnvironment(env: string): Promise<Result<Void, FxError
     return err(FxError);
   }
   return ok(Void);
+}
+
+function getSubscriptionUrl(subscriptionInfo: SubscriptionInfo): string {
+  const subscriptionId = subscriptionInfo.subscriptionId;
+  const tenantId = subscriptionInfo.tenantId;
+  const portalUrl = subscriptionInfo.portalUrl;
+
+  return `${portalUrl}/#@${tenantId}/resource/subscriptions/${subscriptionId}`;
+}
+
+export async function openSubscriptionInPortal(env: string): Promise<void> {
+  const subscriptionInfo = await getSubscriptionInfoFromEnv(env);
+  if (subscriptionInfo) {
+    const url = getSubscriptionUrl(subscriptionInfo);
+
+    await vscode.env.openExternal(vscode.Uri.parse(url));
+  }
+}
+
+export async function openResourceGroupInPortal(env: string): Promise<void> {
+  const subscriptionInfo = await getSubscriptionInfoFromEnv(env);
+  const resourceGroupName = await getResourceGroupNameFromEnv(env);
+
+  if (subscriptionInfo && resourceGroupName) {
+    const url = `${getSubscriptionUrl(subscriptionInfo)}/resourceGroups/${resourceGroupName}`;
+
+    await vscode.env.openExternal(vscode.Uri.parse(url));
+  }
 }
 
 export async function grantPermission(env: string): Promise<Result<Void, FxError>> {

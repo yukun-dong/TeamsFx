@@ -54,6 +54,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   private static subscriptionId: string | undefined;
   private static subscriptionName: string | undefined;
   private static tenantId: string | undefined;
+  private static portalUrl: string | undefined;
   private static currentStatus: string | undefined;
 
   private static statusChange?: (
@@ -323,6 +324,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
             subscriptionId: item.subscription.subscriptionId!,
             subscriptionName: item.subscription.displayName!,
             tenantId: item.session.tenantId!,
+            portalUrl: item.session.environment.portalUrl,
           });
         }
       }
@@ -343,10 +345,12 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
           AzureAccountManager.tenantId = item.session.tenantId;
           AzureAccountManager.subscriptionId = subscriptionId;
           AzureAccountManager.subscriptionName = item.subscription.displayName;
+          AzureAccountManager.portalUrl = item.session.environment.portalUrl;
           await this.saveSubscription({
             subscriptionId: item.subscription.subscriptionId!,
             subscriptionName: item.subscription.displayName!,
             tenantId: item.session.tenantId,
+            portalUrl: item.session.environment.portalUrl,
           });
           TreeViewManagerInstance.getTreeView("teamsfx-accounts")?.add([
             {
@@ -461,6 +465,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       const selectedSub: SubscriptionInfo = {
         subscriptionId: AzureAccountManager.subscriptionId,
         tenantId: AzureAccountManager.tenantId!,
+        portalUrl: AzureAccountManager.portalUrl!,
         subscriptionName: AzureAccountManager.subscriptionName ?? "",
       };
       return selectedSub;
@@ -541,6 +546,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       return {
         subscriptionId: subcriptionJson.subscriptionId,
         tenantId: subcriptionJson.tenantId,
+        portalUrl: subcriptionJson.portalUrl,
         subscriptionName: subcriptionJson.subscriptionName,
       };
     }

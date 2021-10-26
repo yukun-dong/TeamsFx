@@ -211,6 +211,7 @@ class MockedAppStudioTokenProvider implements AppStudioTokenProvider {
 const mockedSubscriptionName = "mocked subscription id";
 const mockedSubscriptionId = "mocked subscription id";
 const mockedTenantId = "mocked tenant id";
+const mockedPortalUrl = "mocked portal url";
 
 class MockedAzureTokenProvider implements AzureAccountProvider {
   getAccountCredential(showDialog?: boolean): TokenCredentialsBase {
@@ -265,6 +266,7 @@ class MockedAzureTokenProvider implements AzureAccountProvider {
         subscriptionName: mockedSubscriptionName,
         subscriptionId: mockedSubscriptionId,
         tenantId: mockedTenantId,
+        portalUrl: mockedPortalUrl,
       },
     ];
   }
@@ -279,6 +281,7 @@ class MockedAzureTokenProvider implements AzureAccountProvider {
       subscriptionId: "subscriptionId",
       tenantId: "tenantId",
       subscriptionName: "subscriptionName",
+      portalUrl: "portalUrl",
     };
     return Promise.resolve(selectedSub);
   }

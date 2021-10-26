@@ -294,10 +294,9 @@ export async function getSubscriptionInfoFromEnv(
   if (provisionResult.solution && provisionResult.solution.subscriptionId) {
     return {
       subscriptionName: provisionResult.solution.subscriptionName,
-
       subscriptionId: provisionResult.solution.subscriptionId,
-
       tenantId: provisionResult.solution.tenantId,
+      portalUrl: provisionResult.solution.portalUrl,
     };
   } else {
     return undefined;

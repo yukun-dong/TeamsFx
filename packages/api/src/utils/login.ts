@@ -226,6 +226,7 @@ export type SubscriptionInfo = {
   subscriptionName: string;
   subscriptionId: string;
   tenantId: string;
+  portalUrl: string;
 };
 
 export type TokenProvider = {

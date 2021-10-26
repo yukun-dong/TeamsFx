@@ -432,6 +432,7 @@ export class MockedAzureAccountProvider implements AzureAccountProvider {
       subscriptionId: "",
       subscriptionName: "",
       tenantId: "",
+      portalUrl: "",
     };
   }
 }

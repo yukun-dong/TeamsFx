@@ -78,6 +78,7 @@ class CommonQuestions {
   resourceNameSuffix = "";
   resourceGroupName = "";
   tenantId = "";
+  portalUrl = "";
   subscriptionId = "";
   subscriptionName = "";
   // default to East US for now
@@ -388,6 +389,7 @@ async function askCommonQuestions(
   commonQuestions.subscriptionId = subscriptionId;
   commonQuestions.subscriptionName = subscriptionResult.value.subscriptionName;
   commonQuestions.tenantId = subscriptionResult.value.tenantId;
+  commonQuestions.portalUrl = subscriptionResult.value.portalUrl;
   ctx.logProvider?.info(
     `[${PluginDisplayName.Solution}] askCommonQuestions, step 1 - check subscriptionId pass!`
   );
