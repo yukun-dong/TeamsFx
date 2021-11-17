@@ -64,7 +64,7 @@ jobs:
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
       M365_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-      M365_TENANT_ID: "d85e8d90-95a6-4c9f-a8a1-0dad203412bf"
+      M365_TENANT_ID: ${{ secrets.TEST_TENANT_ID_2 }}
       CI_ENABLED: "true"
       M365_ACCOUNT_COLLABORATOR: ${{ secrets.TEST_COLLABORATOR_USER_NAME }}
       AZURE_DEVOPS_EXT_PAT: ${{ secrets.ADO_PAT }}
