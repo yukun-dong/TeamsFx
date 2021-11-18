@@ -3,9 +3,9 @@
 
 import { AccessToken, GetTokenOptions, TokenCredential } from "@azure/identity";
 import { AuthenticationResult, ConfidentialClientApplication } from "@azure/msal-node";
-import { config } from "../core/configurationProvider";
+import { AuthenticationConfiguration } from "../models/configuration";
 import { UserInfo } from "../models/userinfo";
-import { internalLogger } from "../util/logger";
+import { InternalLogger } from "../util/logger";
 import {
   formatString,
   getScopesArray,
@@ -33,6 +33,7 @@ import { createConfidentialClientApplication } from "../util/utils.node";
 export class OnBehalfOfUserCredential implements TokenCredential {
   private msalClient: ConfidentialClientApplication;
   private ssoToken: AccessToken;
+  private logger: InternalLogger;
 
   /**
    * Constructor of OnBehalfOfUserCredential
@@ -48,23 +49,28 @@ export class OnBehalfOfUserCredential implements TokenCredential {
    *
    * @beta
    */
-  constructor(ssoToken: string) {
-    internalLogger.info("Get on behalf of user credential");
+  constructor(
+    ssoToken: string,
+    authConfiguration: AuthenticationConfiguration,
+    logger: InternalLogger
+  ) {
+    this.logger = logger;
+    this.logger.info("Get on behalf of user credential");
 
     const missingConfigurations: string[] = [];
-    if (!config?.authentication?.clientId) {
+    if (!authConfiguration.clientId) {
       missingConfigurations.push("clientId");
     }
 
-    if (!config?.authentication?.authorityHost) {
+    if (!authConfiguration.authorityHost) {
       missingConfigurations.push("authorityHost");
     }
 
-    if (!config?.authentication?.clientSecret && !config?.authentication?.certificateContent) {
+    if (!authConfiguration.clientSecret && !authConfiguration.certificateContent) {
       missingConfigurations.push("clientSecret or certificateContent");
     }
 
-    if (!config?.authentication?.tenantId) {
+    if (!authConfiguration.tenantId) {
       missingConfigurations.push("tenantId");
     }
 
@@ -74,11 +80,11 @@ export class OnBehalfOfUserCredential implements TokenCredential {
         missingConfigurations.join(", "),
         "undefined"
       );
-      internalLogger.error(errorMsg);
+      this.logger.error(errorMsg);
       throw new ErrorWithCode(errorMsg, ErrorCode.InvalidConfiguration);
     }
 
-    this.msalClient = createConfidentialClientApplication(config.authentication!);
+    this.msalClient = createConfidentialClientApplication(authConfiguration);
 
     const decodedSsoToken = parseJwt(ssoToken);
     this.ssoToken = {
@@ -132,15 +138,15 @@ export class OnBehalfOfUserCredential implements TokenCredential {
 
     let result: AccessToken | null;
     if (!scopesArray.length) {
-      internalLogger.info("Get SSO token.");
+      this.logger.info("Get SSO token.");
       if (Math.floor(Date.now() / 1000) > this.ssoToken.expiresOnTimestamp) {
         const errorMsg = "Sso token has already expired.";
-        internalLogger.error(errorMsg);
+        this.logger.error(errorMsg);
         throw new ErrorWithCode(errorMsg, ErrorCode.TokenExpiredError);
       }
       result = this.ssoToken;
     } else {
-      internalLogger.info("Get access token with scopes: " + scopesArray.join(" "));
+      this.logger.info("Get access token with scopes: " + scopesArray.join(" "));
 
       let authenticationResult: AuthenticationResult | null;
       try {
@@ -154,7 +160,7 @@ export class OnBehalfOfUserCredential implements TokenCredential {
 
       if (!authenticationResult) {
         const errorMsg = "Access token is null";
-        internalLogger.error(errorMsg);
+        this.logger.error(errorMsg);
         throw new ErrorWithCode(
           formatString(ErrorMessage.FailToAcquireTokenOnBehalfOfUser, errorMsg),
           ErrorCode.InternalError
@@ -186,7 +192,7 @@ export class OnBehalfOfUserCredential implements TokenCredential {
    * @beta
    */
   public getUserInfo(): UserInfo {
-    internalLogger.info("Get basic user info from SSO token");
+    this.logger.info("Get basic user info from SSO token");
     return getUserInfoFromSsoToken(this.ssoToken.token);
   }
 
@@ -195,19 +201,19 @@ export class OnBehalfOfUserCredential implements TokenCredential {
     if (err.name === "InteractionRequiredAuthError") {
       const fullErrorMsg =
         "Failed to get access token from AAD server, interaction required: " + errorMessage;
-      internalLogger.warn(fullErrorMsg);
+      this.logger.warn(fullErrorMsg);
       return new ErrorWithCode(fullErrorMsg, ErrorCode.UiRequiredError);
     } else if (errorMessage && errorMessage.indexOf("AADSTS500133") >= 0) {
       const fullErrorMsg =
         "Failed to get access token from AAD server, sso token expired: " + errorMessage;
-      internalLogger.error(fullErrorMsg);
+      this.logger.error(fullErrorMsg);
       return new ErrorWithCode(fullErrorMsg, ErrorCode.TokenExpiredError);
     } else {
       const fullErrorMsg = formatString(
         ErrorMessage.FailToAcquireTokenOnBehalfOfUser,
         errorMessage
       );
-      internalLogger.error(fullErrorMsg);
+      this.logger.error(fullErrorMsg);
       return new ErrorWithCode(fullErrorMsg, ErrorCode.ServiceError);
     }
   }

@@ -14,7 +14,7 @@ export { OnBehalfOfUserCredential } from "./credential/onBehalfOfUserCredential"
 export { TeamsUserCredential } from "./credential/teamsUserCredential";
 
 export { MsGraphAuthProvider } from "./core/msGraphAuthProvider";
-export { createMicrosoftGraphClient } from "./core/msGraphClientProvider";
+export { createMicrosoftGraphClient, getMicrosoftGraphClient } from "./core/msGraphClientProvider";
 export { DefaultTediousConnectionConfiguration } from "./core/defaultTediousConnectionConfiguration";
 
 export { TeamsBotSsoPrompt, TeamsBotSsoPromptSettings } from "./bot/teamsBotSsoPrompt";
@@ -37,3 +37,10 @@ export {
   setLogger,
   setLogFunction,
 } from "./util/logger";
+
+export {
+  initializeTeamsUserCredential,
+  getTeamsUserCredential,
+  initializeOnBehalfOfUserCredential,
+  getOnBehalfOfUserCredential,
+} from "./credential/index";

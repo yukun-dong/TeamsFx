@@ -6,15 +6,13 @@ import { UserInfo } from "../models/userinfo";
 import { ErrorCode, ErrorMessage, ErrorWithCode } from "../core/errors";
 import { Cache } from "../core/cache.browser";
 import * as microsoftTeams from "@microsoft/teams-js";
-import { getAuthenticationConfiguration } from "../core/configurationProvider";
 import { AuthenticationConfiguration } from "../models/configuration";
 import { AuthCodeResult } from "../models/authCodeResult";
 import axios, { AxiosInstance } from "axios";
 import { GrantType } from "../models/grantType";
 import { AccessTokenResult } from "../models/accessTokenResult";
-import { validateScopesType, getUserInfoFromSsoToken, parseJwt } from "../util/utils";
-import { formatString } from "../util/utils";
-import { internalLogger } from "../util/logger";
+import { validateScopesType, getUserInfoFromSsoToken, parseJwt, formatString } from "../util/utils";
+import { InternalLogger } from "../util/logger";
 
 const accessTokenCacheKeyPrefix = "accessToken";
 const separator = "-";
@@ -36,6 +34,7 @@ const retryTimeSpanInMillisecond = 3000;
 export class TeamsUserCredential implements TokenCredential {
   private readonly config: AuthenticationConfiguration;
   private ssoToken: AccessToken | null;
+  private logger: InternalLogger;
 
   /**
    * Constructor of TeamsUserCredential.
@@ -59,9 +58,10 @@ export class TeamsUserCredential implements TokenCredential {
    * 
    * @beta
    */
-  constructor() {
-    internalLogger.info("Create teams user credential");
-    this.config = this.loadAndValidateConfig();
+  constructor(authConfiguration: AuthenticationConfiguration, logger: InternalLogger) {
+    logger.info("Create teams user credential");
+    this.logger = logger;
+    this.config = this.loadAndValidateConfig(authConfiguration);
     this.ssoToken = null;
   }
 
@@ -92,7 +92,7 @@ export class TeamsUserCredential implements TokenCredential {
     validateScopesType(scopes);
     const scopesStr = typeof scopes === "string" ? scopes : scopes.join(" ");
 
-    internalLogger.info(`Popup login page to get user's access token with scopes: ${scopesStr}`);
+    this.logger.info(`Popup login page to get user's access token with scopes: ${scopesStr}`);
 
     return new Promise<void>((resolve, reject) => {
       microsoftTeams.initialize(() => {
@@ -106,7 +106,7 @@ export class TeamsUserCredential implements TokenCredential {
             if (!result) {
               const errorMsg = "Get empty authentication result from Teams";
 
-              internalLogger.error(errorMsg);
+              this.logger.error(errorMsg);
               reject(new ErrorWithCode(errorMsg, ErrorCode.InternalError));
               return;
             }
@@ -121,7 +121,7 @@ export class TeamsUserCredential implements TokenCredential {
           },
           failureCallback: (reason?: string) => {
             const errorMsg = `Consent failed for the scope ${scopesStr} with error: ${reason}`;
-            internalLogger.error(errorMsg);
+            this.logger.error(errorMsg);
             reject(new ErrorWithCode(errorMsg, ErrorCode.ConsentFailed));
           },
         });
@@ -171,23 +171,23 @@ export class TeamsUserCredential implements TokenCredential {
 
     const scopeStr = typeof scopes === "string" ? scopes : scopes.join(" ");
     if (scopeStr === "") {
-      internalLogger.info("Get SSO token");
+      this.logger.info("Get SSO token");
 
       return ssoToken;
     } else {
-      internalLogger.info("Get access token with scopes: " + scopeStr);
+      this.logger.info("Get access token with scopes: " + scopeStr);
       const cachedKey = await this.getAccessTokenCacheKey(scopeStr);
       const cachedToken = this.getTokenCache(cachedKey);
 
       if (cachedToken) {
         if (!this.isAccessTokenNearExpired(cachedToken)) {
-          internalLogger.verbose("Get access token from cache");
+          this.logger.verbose("Get access token from cache");
           return cachedToken;
         } else {
-          internalLogger.verbose("Cached access token is expired");
+          this.logger.verbose("Cached access token is expired");
         }
       } else {
-        internalLogger.verbose("No cached access token");
+        this.logger.verbose("No cached access token");
       }
 
       const accessToken = await this.getAndCacheAccessTokenFromSimpleAuthServer(scopeStr);
@@ -212,7 +212,7 @@ export class TeamsUserCredential implements TokenCredential {
    * @beta
    */
   public async getUserInfo(): Promise<UserInfo> {
-    internalLogger.info("Get basic user info from SSO token");
+    this.logger.info("Get basic user info from SSO token");
     const ssoToken = await this.getSSOToken();
     return getUserInfoFromSsoToken(ssoToken.token);
   }
@@ -243,7 +243,7 @@ export class TeamsUserCredential implements TokenCredential {
         return;
       } catch (err: any) {
         if (err.response?.data?.type && err.response.data.type === "AadUiRequiredException") {
-          internalLogger.warn("Exchange access token failed, retry...");
+          this.logger.warn("Exchange access token failed, retry...");
           if (retryCount < maxRetryCount) {
             await this.sleep(retryTimeSpanInMillisecond);
             retryCount++;
@@ -263,9 +263,7 @@ export class TeamsUserCredential implements TokenCredential {
     scopesStr: string
   ): Promise<AccessToken> {
     try {
-      internalLogger.verbose(
-        "Get access token from authentication server with scopes: " + scopesStr
-      );
+      this.logger.verbose("Get access token from authentication server with scopes: " + scopesStr);
       const axiosInstance: AxiosInstance = await this.getAxiosInstance();
       const response = await axiosInstance.post("/auth/token", {
         scope: scopesStr,
@@ -294,7 +292,7 @@ export class TeamsUserCredential implements TokenCredential {
     return new Promise<AccessToken>((resolve, reject) => {
       if (this.ssoToken) {
         if (this.ssoToken.expiresOnTimestamp - Date.now() > tokenRefreshTimeSpanInMillisecond) {
-          internalLogger.verbose("Get SSO token from memory cache");
+          this.logger.verbose("Get SSO token from memory cache");
           resolve(this.ssoToken);
           return;
         }
@@ -307,7 +305,7 @@ export class TeamsUserCredential implements TokenCredential {
           successCallback: (token: string) => {
             if (!token) {
               const errorMsg = "Get empty SSO token from Teams";
-              internalLogger.error(errorMsg);
+              this.logger.error(errorMsg);
               reject(new ErrorWithCode(errorMsg, ErrorCode.InternalError));
               return;
             }
@@ -315,7 +313,7 @@ export class TeamsUserCredential implements TokenCredential {
             const tokenObject = parseJwt(token);
             if (tokenObject.ver !== "1.0" && tokenObject.ver !== "2.0") {
               const errorMsg = "SSO token is not valid with an unknown version: " + tokenObject.ver;
-              internalLogger.error(errorMsg);
+              this.logger.error(errorMsg);
               reject(new ErrorWithCode(errorMsg, ErrorCode.InternalError));
               return;
             }
@@ -330,7 +328,7 @@ export class TeamsUserCredential implements TokenCredential {
           },
           failureCallback: (errMessage: string) => {
             const errorMsg = "Get SSO token failed with error: " + errMessage;
-            internalLogger.error(errorMsg);
+            this.logger.error(errorMsg);
             reject(new ErrorWithCode(errorMsg, ErrorCode.InternalError));
           },
           resources: [],
@@ -342,7 +340,7 @@ export class TeamsUserCredential implements TokenCredential {
         if (!initialized) {
           const errorMsg =
             "Initialize teams sdk timeout, maybe the code is not running inside Teams";
-          internalLogger.error(errorMsg);
+          this.logger.error(errorMsg);
           reject(new ErrorWithCode(errorMsg, ErrorCode.InternalError));
         }
       }, initializeTeamsSdkTimeoutInMillisecond);
@@ -353,12 +351,12 @@ export class TeamsUserCredential implements TokenCredential {
    * Load and validate authentication configuration
    * @returns Authentication configuration
    */
-  private loadAndValidateConfig(): AuthenticationConfiguration {
-    internalLogger.verbose("Validate authentication configuration");
-    const config = getAuthenticationConfiguration();
+  private loadAndValidateConfig(config: AuthenticationConfiguration): AuthenticationConfiguration {
+    this.logger.verbose("Validate authentication configuration");
+    // const config = getAuthenticationConfiguration();
 
     if (!config) {
-      internalLogger.error(ErrorMessage.AuthenticationConfigurationNotExists);
+      this.logger.error(ErrorMessage.AuthenticationConfigurationNotExists);
 
       throw new ErrorWithCode(
         ErrorMessage.AuthenticationConfigurationNotExists,
@@ -389,7 +387,7 @@ export class TeamsUserCredential implements TokenCredential {
       "undefined"
     );
 
-    internalLogger.error(errorMsg);
+    this.logger.error(errorMsg);
     throw new ErrorWithCode(errorMsg, ErrorCode.InvalidConfiguration);
   }
 
@@ -494,12 +492,12 @@ export class TeamsUserCredential implements TokenCredential {
         const fullErrorMsg =
           "Failed to get access token from authentication server, please login first: " +
           errorMessage;
-        internalLogger.warn(fullErrorMsg);
+        this.logger.warn(fullErrorMsg);
         return new ErrorWithCode(fullErrorMsg, ErrorCode.UiRequiredError);
       } else {
         const fullErrorMsg =
           "Failed to get access token from authentication server: " + errorMessage;
-        internalLogger.error(fullErrorMsg);
+        this.logger.error(fullErrorMsg);
         return new ErrorWithCode(fullErrorMsg, ErrorCode.ServiceError);
       }
     }

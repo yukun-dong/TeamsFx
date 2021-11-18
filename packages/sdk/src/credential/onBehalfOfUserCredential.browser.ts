@@ -5,6 +5,8 @@ import { AccessToken, GetTokenOptions, TokenCredential } from "@azure/identity";
 import { UserInfo } from "../models/userinfo";
 import { formatString } from "../util/utils";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
+import { AuthenticationConfiguration } from "../models/configuration";
+import { InternalLogger } from "../util/logger";
 
 /**
  * Represent on-behalf-of flow to get user identity, and it is designed to be used in Azure Function or Bot scenarios.
@@ -22,7 +24,11 @@ export class OnBehalfOfUserCredential implements TokenCredential {
    * Can Only works in in server side.
    * @beta
    */
-  constructor(ssoToken: string) {
+  constructor(
+    ssoToken: string,
+    authConfiguration: AuthenticationConfiguration,
+    logger: InternalLogger
+  ) {
     throw new ErrorWithCode(
       formatString(ErrorMessage.BrowserRuntimeNotSupported, "OnBehalfOfUserCredential"),
       ErrorCode.RuntimeNotSupported

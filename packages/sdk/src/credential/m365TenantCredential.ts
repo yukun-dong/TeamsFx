@@ -3,9 +3,8 @@
 
 import { AccessToken, TokenCredential, GetTokenOptions } from "@azure/identity";
 import { AuthenticationConfiguration } from "../models/configuration";
-import { internalLogger } from "../util/logger";
+import { InternalLogger } from "../util/logger";
 import { validateScopesType, formatString, getScopesArray } from "../util/utils";
-import { getAuthenticationConfiguration } from "../core/configurationProvider";
 import { ErrorCode, ErrorMessage, ErrorWithCode } from "../core/errors";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import { createConfidentialClientApplication } from "../util/utils.node";
@@ -26,6 +25,7 @@ import { createConfidentialClientApplication } from "../util/utils.node";
  */
 export class M365TenantCredential implements TokenCredential {
   private readonly msalClient: ConfidentialClientApplication;
+  private logger: InternalLogger;
 
   /**
    * Constructor of M365TenantCredential.
@@ -38,10 +38,11 @@ export class M365TenantCredential implements TokenCredential {
    *
    * @beta
    */
-  constructor() {
-    internalLogger.info("Create M365 tenant credential");
+  constructor(authConfiguration: AuthenticationConfiguration, logger: InternalLogger) {
+    logger.info("Create M365 tenant credential");
+    this.logger = logger;
 
-    const config = this.loadAndValidateConfig();
+    const config = this.loadAndValidateConfig(authConfiguration);
 
     this.msalClient = createConfidentialClientApplication(config);
   }
@@ -79,7 +80,7 @@ export class M365TenantCredential implements TokenCredential {
     let accessToken;
     validateScopesType(scopes);
     const scopesStr = typeof scopes === "string" ? scopes : scopes.join(" ");
-    internalLogger.info("Get access token with scopes: " + scopesStr);
+    this.logger.info("Get access token with scopes: " + scopesStr);
 
     try {
       const scopesArray = getScopesArray(scopes);
@@ -94,13 +95,13 @@ export class M365TenantCredential implements TokenCredential {
       }
     } catch (err: any) {
       const errorMsg = "Get M365 tenant credential failed with error: " + err.message;
-      internalLogger.error(errorMsg);
+      this.logger.error(errorMsg);
       throw new ErrorWithCode(errorMsg, ErrorCode.ServiceError);
     }
 
     if (!accessToken) {
       const errorMsg = "Get M365 tenant credential access token failed with empty access token";
-      internalLogger.error(errorMsg);
+      this.logger.error(errorMsg);
       throw new ErrorWithCode(errorMsg, ErrorCode.InternalError);
     }
 
@@ -111,13 +112,11 @@ export class M365TenantCredential implements TokenCredential {
    * Load and validate authentication configuration
    * @returns Authentication configuration
    */
-  private loadAndValidateConfig(): AuthenticationConfiguration {
-    internalLogger.verbose("Validate authentication configuration");
-
-    const config = getAuthenticationConfiguration();
+  private loadAndValidateConfig(config: AuthenticationConfiguration): AuthenticationConfiguration {
+    this.logger.verbose("Validate authentication configuration");
 
     if (!config) {
-      internalLogger.error(ErrorMessage.AuthenticationConfigurationNotExists);
+      this.logger.error(ErrorMessage.AuthenticationConfigurationNotExists);
       throw new ErrorWithCode(
         ErrorMessage.AuthenticationConfigurationNotExists,
         ErrorCode.InvalidConfiguration
@@ -147,7 +146,7 @@ export class M365TenantCredential implements TokenCredential {
       missingValues.join(", "),
       "undefined"
     );
-    internalLogger.error(errorMsg);
+    this.logger.error(errorMsg);
     throw new ErrorWithCode(errorMsg, ErrorCode.InvalidConfiguration);
   }
 }

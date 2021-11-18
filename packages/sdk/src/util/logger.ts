@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { _registerComponent } from "../container/api";
+import { ComponentMetadata } from "../container/metadata";
+import { ComponentContainer } from "../container/types";
+
 /**
  * Interface for customized logger.
  * @beta
@@ -77,7 +81,7 @@ export function getLogLevel(): LogLevel | undefined {
   return internalLogger.level;
 }
 
-class InternalLogger {
+export class InternalLogger {
   public level?: LogLevel = undefined;
 
   public customLogger: Logger | undefined;
@@ -175,3 +179,13 @@ export function setLogger(logger?: Logger): void {
 export function setLogFunction(logFunction?: LogFunction): void {
   internalLogger.customLogFunction = logFunction;
 }
+
+function registerLogger() {
+  const factory = (container: ComponentContainer) => {
+    return internalLogger;
+  };
+  const loggerComponent = new ComponentMetadata("logger", factory, false);
+  _registerComponent(loggerComponent);
+}
+
+registerLogger();
