@@ -218,15 +218,17 @@ export function ProjectEnvAlreadyExistError(env: string): FxError {
   );
 }
 
-export function InvalidEnvConfigError(env: string, errorMsg: string): UserError {
-  return new UserError(
-    "InvalidEnvConfigError",
-    `The configuration ${EnvConfigFileNameTemplate.replace(
-      EnvNamePlaceholder,
-      env
-    )} is invalid, details: ${errorMsg}.`,
-    CoreSource
-  );
+export class InvalidEnvConfigError extends UserError {
+  constructor(env: string, errorMsg: string) {
+    super(
+      "InvalidEnvConfigError",
+      `The configuration ${EnvConfigFileNameTemplate.replace(
+        EnvNamePlaceholder,
+        env
+      )} is invalid, details: ${errorMsg}.`,
+      CoreSource
+    );
+  }
 }
 
 export function NonExistEnvNameError(env: string): UserError {

@@ -251,14 +251,15 @@ class EnvironmentManager {
       data = this.expandEnvironmentVariables(data);
       data = JSON.parse(data);
     } catch (error) {
-      return err(InvalidEnvConfigError(envName, `Failed to read env config JSON: ${error}`));
+      return err(new InvalidEnvConfigError(envName, `Failed to read env config JSON: ${error}`));
     }
 
     if (validate(data)) {
       return ok(data);
     }
 
-    return err(InvalidEnvConfigError(envName, JSON.stringify(validate.errors)));
+    const errors = validate.errors?.map((e) => `data path ${e.dataPath} ${e.message}`);
+    return err(new InvalidEnvConfigError(envName, JSON.stringify(errors)));
   }
 
   private async loadEnvState(
