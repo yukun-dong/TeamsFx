@@ -7,6 +7,7 @@ export {
   getAuthenticationConfiguration,
   getResourceConfiguration,
   loadConfiguration,
+  getConfigFromEnv,
 } from "./core/configurationProvider";
 
 export { M365TenantCredential } from "./credential/m365TenantCredential.browser";
@@ -41,4 +42,8 @@ export {
   setLogFunction,
 } from "./util/logger";
 
-export { initializeTeamsUserCredential, getTeamsUserCredential } from "./credential/index.browser";
+export {
+  initializeCredential,
+  getUserCredential,
+  getAppCredential,
+} from "./credential/index.browser";

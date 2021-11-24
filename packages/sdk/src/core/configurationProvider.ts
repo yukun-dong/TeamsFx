@@ -17,6 +17,29 @@ import { ErrorWithCode, ErrorCode, ErrorMessage } from "./errors";
  */
 export let config: Configuration;
 
+export function getConfigFromEnv(): AuthenticationConfiguration {
+  if (isNode) {
+    return {
+      authorityHost: process.env.M365_AUTHORITY_HOST,
+      tenantId: process.env.M365_TENANT_ID,
+      clientId: process.env.M365_CLIENT_ID,
+      clientSecret: process.env.M365_CLIENT_SECRET,
+      simpleAuthEndpoint: process.env.SIMPLE_AUTH_ENDPOINT,
+      initiateLoginEndpoint: process.env.INITIATE_LOGIN_ENDPOINT,
+      applicationIdUri: process.env.M365_APPLICATION_ID_URI,
+    };
+  } else {
+    return {
+      authorityHost: process.env.REACT_APP_AUTHORITY_HOST,
+      tenantId: process.env.REACT_APP_TENANT_ID,
+      clientId: process.env.REACT_APP_CLIENT_ID,
+      simpleAuthEndpoint: process.env.REACT_APP_TEAMSFX_ENDPOINT,
+      initiateLoginEndpoint: process.env.REACT_APP_START_LOGIN_PAGE_URL,
+      applicationIdUri: process.env.M365_APPLICATION_ID_URI,
+    };
+  }
+}
+
 /**
  * Initialize configuration from environment variables or configuration object and set the global instance
  *

@@ -78,7 +78,7 @@ export function getMicrosoftGraphClient(
   const logger = _resolveComponent("logger") as InternalLogger;
   logger.info("Create Microsoft Graph Client");
   const credential =
-    tokenCredential ?? (_resolveComponent("OnBehalfOfUserCredential") as TokenCredential);
+    tokenCredential ?? (_resolveComponent("TeamsUserCredential") as TokenCredential);
   const authProvider = new MsGraphAuthProvider(credential, scopes);
   const graphClient = Client.initWithMiddleware({
     authProvider,

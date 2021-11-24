@@ -6,7 +6,15 @@
   "browser": "dist/index.esm2017.js",
   "module": "dist/index.esm2017.mjs",
   "esm5": "dist/index.esm5.js",
+  "exports": {
+    "./internal": "./dist/internal.js"
+  },
   "types": "types/teamsfx.d.ts",
+  "typesVersions": {
+    "*": {
+      "internal": ["types/internal.d.ts"]
+    }
+  },
   "scripts": {
     "prebuild": "npm run clean",
     "build": "rollup -c && api-extractor run --local && npm run api-markdown",
@@ -34,6 +42,7 @@
     "dist/*js",
     "dist/*js.map",
     "types/teamsfx.d.ts",
+    "types/internal.d.ts",
     "README.md",
     "LICENSE"
   ],
@@ -118,6 +127,7 @@
     "puppeteer": "^11.0.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.59.0",
+    "rollup-plugin-dts": "^4.0.1",
     "rollup-plugin-typescript2": "^0.30.0",
     "semver": "^7.3.5",
     "sinon": "^12.0.1",

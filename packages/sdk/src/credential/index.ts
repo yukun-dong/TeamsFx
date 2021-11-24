@@ -5,6 +5,7 @@ import { AuthenticationConfiguration } from "../models/configuration";
 import { InternalLogger } from "../util/logger";
 import { M365TenantCredential } from "./m365TenantCredential";
 import { OnBehalfOfUserCredential } from "./onBehalfOfUserCredential";
+import { TokenCredential } from "@azure/core-auth";
 
 export function registerCredential() {
   const m365Factory = (componentContainer: ComponentContainer, options?: InitializeOptions) => {
@@ -30,42 +31,20 @@ export function registerCredential() {
   );
 }
 
-export function initializeTeamsUserCredential(
-  config: AuthenticationConfiguration,
-  identifier = "default"
-) {
-  throw new Error();
+export function initializeCredential(config: AuthenticationConfiguration, accessToken?: string) {
+  _initializeComponent("OnBehalfOfUserCredential", {
+    authOption: config,
+    accessToken: accessToken,
+  });
+  _initializeComponent("M365TenantCredential", { ...config });
 }
 
-export function getTeamsUserCredential() {
-  throw new Error();
+export function getUserCredential(): TokenCredential {
+  return _resolveComponent("OnBehalfOfUserCredential") as OnBehalfOfUserCredential;
 }
 
-export function initializeM365TenantCredential(
-  config: AuthenticationConfiguration,
-  identifier: string
-) {
-  _initializeComponent("M365TenantCredential", { ...config }, identifier);
-}
-
-export function getM365TenantCredential() {
-  return _resolveComponent("M365TenantCredential");
-}
-
-export function initializeOnBehalfOfUserCredential(
-  config: AuthenticationConfiguration,
-  accessToken: string,
-  identifier = "default"
-) {
-  _initializeComponent(
-    "OnBehalfOfUserCredential",
-    { authOption: config, accessToken: accessToken },
-    identifier
-  );
-}
-
-export function getOnBehalfOfUserCredential() {
-  return _resolveComponent("OnBehalfOfUserCredential");
+export function getAppCredential(): M365TenantCredential {
+  return _resolveComponent("M365TenantCredential") as M365TenantCredential;
 }
 
 registerCredential();

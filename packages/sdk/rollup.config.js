@@ -1,5 +1,6 @@
 import json from "@rollup/plugin-json";
 import typescriptPlugin from "rollup-plugin-typescript2";
+import dts from "rollup-plugin-dts";
 import typescript from "typescript";
 import pkg from "./package.json";
 
@@ -97,4 +98,25 @@ const es2017Builds = [
   },
 ];
 
-export default [...es5Builds, ...es2017Builds];
+const containerBuild = [
+  {
+    input: "./src/container/index.ts",
+    output: {
+      file: "dist/internal.js",
+      format: "es",
+      sourcemap: true,
+    },
+    plugins: [...es2017Plugins],
+    external: (id) => nodeDeps.some((dep) => id === dep || id.startsWith(`${dep}/`)),
+    treeshake: {
+      moduleSideEffects: false,
+    },
+  },
+  {
+    input: "./dist/src/container/index.d.ts",
+    output: [{ file: "types/internal.d.ts", format: "es" }],
+    plugins: [dts()],
+  },
+];
+
+export default [...es5Builds, ...es2017Builds, ...containerBuild];

@@ -27,7 +27,7 @@ import {
   PromptRecognizerResult,
 } from "botbuilder-dialogs";
 import { TeamsBotSsoPromptTokenResponse } from "./teamsBotSsoPromptTokenResponse";
-import { config } from "../core/configurationProvider";
+import { config, getAuthenticationConfiguration } from "../core/configurationProvider";
 import { OnBehalfOfUserCredential } from "../credential/onBehalfOfUserCredential";
 import { v4 as uuidv4 } from "uuid";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
@@ -390,7 +390,11 @@ export class TeamsBotSsoPrompt extends Dialog {
         );
       } else {
         const ssoToken = context.activity.value.token;
-        const credential: OnBehalfOfUserCredential = new OnBehalfOfUserCredential(ssoToken);
+        const credential: OnBehalfOfUserCredential = new OnBehalfOfUserCredential(
+          ssoToken,
+          getAuthenticationConfiguration()!,
+          internalLogger
+        );
         let exchangedToken: AccessToken | null;
         try {
           exchangedToken = await credential.getToken(this.settings.scopes);

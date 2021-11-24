@@ -36,4 +36,16 @@ export class Container implements ComponentContainer {
     }
     return provider.resolve(identifier);
   }
+
+  async initializeAsync(
+    componentName: string,
+    options: Record<string, unknown>,
+    identifier = "default"
+  ) {
+    const provider = this.registry.get(componentName);
+    if (!provider) {
+      throw new Error();
+    }
+    await provider.initializeAsync(identifier, options);
+  }
 }

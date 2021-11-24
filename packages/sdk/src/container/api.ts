@@ -18,6 +18,14 @@ export function _initializeComponent(
   _container.initialize(componentName, options, identifier);
 }
 
+export async function _initializeComponentAsync(
+  componentName: string,
+  options: Record<string, unknown>,
+  identifier = "default"
+) {
+  await _container.initializeAsync(componentName, options, identifier);
+}
+
 export function _resolveComponent(componentName: string) {
   return _container.resolve(componentName);
 }

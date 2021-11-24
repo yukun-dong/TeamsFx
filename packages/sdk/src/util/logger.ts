@@ -81,7 +81,7 @@ export function getLogLevel(): LogLevel | undefined {
   return internalLogger.level;
 }
 
-export class InternalLogger {
+export class InternalLogger implements Logger {
   public level?: LogLevel = undefined;
 
   public customLogger: Logger | undefined;

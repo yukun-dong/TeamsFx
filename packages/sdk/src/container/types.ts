@@ -7,4 +7,7 @@ export interface ComponentContainer {
 
 export type InitializeOptions = Record<string, unknown>;
 
-export type ComponentFactory<T> = (container: ComponentContainer, options?: InitializeOptions) => T;
+export type ComponentFactory<T> = (
+  container: ComponentContainer,
+  options?: InitializeOptions
+) => T | Promise<T>;

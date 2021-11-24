@@ -20,6 +20,18 @@ export class ComponentProvider<T> {
       throw new Error("already initialized");
     }
     const instance = this.metadata.componentFactory(this.container, options);
+    if (instance instanceof Promise) {
+      throw new Error("Async factory");
+    }
+    this.instances.set(identifier, instance);
+    return instance;
+  }
+
+  async initializeAsync(identifier: string, options?: Record<string, unknown>): Promise<T> {
+    if (this.instances.get(identifier)) {
+      throw new Error("already initialized");
+    }
+    const instance = await this.metadata.componentFactory(this.container, options);
     this.instances.set(identifier, instance);
     return instance;
   }
@@ -31,6 +43,9 @@ export class ComponentProvider<T> {
     }
     // use factory to initialize without parameters
     const newInstance = this.metadata.componentFactory(this.container);
+    if (newInstance instanceof Promise) {
+      throw new Error("Async factory");
+    }
     this.instances.set(identifier, newInstance);
     return newInstance;
   }
