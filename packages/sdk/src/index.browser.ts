@@ -47,3 +47,11 @@ export {
   getUserCredential,
   getAppCredential,
 } from "./credential/index.browser";
+// export {
+//   _registerComponent,
+//   _initializeComponent,
+//   _initializeComponentAsync,
+//   _resolveComponent,
+// } from "./container/api";
+// export { ComponentContainer, InitializeOptions } from "./container/types";
+// export { ComponentMetadata } from "./container/metadata";
