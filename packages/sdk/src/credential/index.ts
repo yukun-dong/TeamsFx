@@ -6,6 +6,7 @@ import { InternalLogger } from "../util/logger";
 import { M365TenantCredential } from "./m365TenantCredential";
 import { OnBehalfOfUserCredential } from "./onBehalfOfUserCredential";
 import { TokenCredential } from "@azure/core-auth";
+import { getConfigFromEnv } from "../core/configurationProvider";
 
 export function registerCredential() {
   const m365Factory = (componentContainer: ComponentContainer, options?: InitializeOptions) => {
@@ -31,12 +32,13 @@ export function registerCredential() {
   );
 }
 
-export function initializeCredential(config: AuthenticationConfiguration, accessToken?: string) {
+export function initializeCredential(config?: AuthenticationConfiguration, accessToken?: string) {
+  const authOption = config ?? getConfigFromEnv();
   _initializeComponent("OnBehalfOfUserCredential", {
-    authOption: config,
+    authOption: authOption,
     accessToken: accessToken,
   });
-  _initializeComponent("M365TenantCredential", { ...config });
+  _initializeComponent("M365TenantCredential", { ...authOption });
 }
 
 export function getUserCredential(): TokenCredential {
@@ -45,6 +47,10 @@ export function getUserCredential(): TokenCredential {
 
 export function getAppCredential(): M365TenantCredential {
   return _resolveComponent("M365TenantCredential") as M365TenantCredential;
+}
+
+export async function authorize(scopes: string | string[], credential?: TokenCredential) {
+  throw new Error();
 }
 
 registerCredential();

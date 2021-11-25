@@ -5,6 +5,7 @@ import { TeamsUserCredential } from "./teamsUserCredential.browser";
 import { InternalLogger } from "../util/logger";
 import { AuthenticationConfiguration } from "../models/configuration";
 import { TokenCredential } from "@azure/core-auth";
+import { getConfigFromEnv } from "../core/configurationProvider";
 
 export function registerCredential() {
   const teamsUserCredentialfactory = (
@@ -20,12 +21,18 @@ export function registerCredential() {
   );
 }
 
-export function initializeCredential(config: AuthenticationConfiguration, accessToken?: string) {
-  _initializeComponent("TeamsUserCredential", { ...config });
+export function initializeCredential(config?: AuthenticationConfiguration, accessToken?: string) {
+  const authOption = config ?? getConfigFromEnv();
+  _initializeComponent("TeamsUserCredential", { ...authOption });
 }
 
 export function getUserCredential(): TokenCredential {
   return _resolveComponent("TeamsUserCredential") as TeamsUserCredential;
+}
+
+export async function authorize(scopes: string | string[], credential?: TokenCredential) {
+  const userCredential = (credential ?? getUserCredential()) as TeamsUserCredential;
+  await userCredential.login(scopes);
 }
 
 export function getAppCredential() {
