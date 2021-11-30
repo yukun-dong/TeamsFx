@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { registerLogger } from "./util/logger";
+
 export { ErrorWithCode, ErrorCode } from "./core/errors";
 
 export {
@@ -46,12 +48,7 @@ export {
   initializeCredential,
   getUserCredential,
   getAppCredential,
+  authorize,
 } from "./credential/index.browser";
-// export {
-//   _registerComponent,
-//   _initializeComponent,
-//   _initializeComponentAsync,
-//   _resolveComponent,
-// } from "./container/api";
-// export { ComponentContainer, InitializeOptions } from "./container/types";
-// export { ComponentMetadata } from "./container/metadata";
+
+registerLogger();

@@ -113,6 +113,19 @@ const containerBuild = [
     },
   },
   {
+    input: "./src/container/index.ts",
+    output: {
+      file: "dist/internal.cjs",
+      format: "cjs",
+      sourcemap: true,
+    },
+    plugins: [...es5BuildPlugins],
+    external: (id) => nodeDeps.some((dep) => id === dep || id.startsWith(`${dep}/`)),
+    treeshake: {
+      moduleSideEffects: false,
+    },
+  },
+  {
     input: "./dist/src/container/index.d.ts",
     output: [{ file: "types/internal.d.ts", format: "es" }],
     plugins: [dts()],

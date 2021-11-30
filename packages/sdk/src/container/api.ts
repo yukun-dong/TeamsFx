@@ -26,6 +26,6 @@ export async function _initializeComponentAsync(
   await _container.initializeAsync(componentName, options, identifier);
 }
 
-export function _resolveComponent(componentName: string) {
-  return _container.resolve(componentName);
+export function _resolveComponent(componentName: string, identifier = "default") {
+  return _container.resolve(componentName, identifier);
 }

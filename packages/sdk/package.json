@@ -7,7 +7,14 @@
   "module": "dist/index.esm2017.mjs",
   "esm5": "dist/index.esm5.js",
   "exports": {
-    "./internal": "./dist/internal.js"
+    ".": {
+      "import": "./dist/index.es2017.js",
+      "require": "./dist/index.node.cjs.js"
+    },
+    "./internal": {
+      "import": "./dist/internal.js",
+      "require": "./dist/internal.cjs"
+    }
   },
   "types": "types/teamsfx.d.ts",
   "typesVersions": {

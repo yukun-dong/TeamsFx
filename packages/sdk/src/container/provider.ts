@@ -16,9 +16,9 @@ export class ComponentProvider<T> {
   }
 
   initialize(identifier: string, options?: Record<string, unknown>): T {
-    if (this.instances.get(identifier)) {
-      throw new Error("already initialized");
-    }
+    // if (this.instances.get(identifier)) {
+    //   throw new Error("already initialized");
+    // }
     const instance = this.metadata.componentFactory(this.container, options);
     if (instance instanceof Promise) {
       throw new Error("Async factory");
@@ -28,9 +28,9 @@ export class ComponentProvider<T> {
   }
 
   async initializeAsync(identifier: string, options?: Record<string, unknown>): Promise<T> {
-    if (this.instances.get(identifier)) {
-      throw new Error("already initialized");
-    }
+    // if (this.instances.get(identifier)) {
+    //   throw new Error("already initialized");
+    // }
     const instance = await this.metadata.componentFactory(this.container, options);
     this.instances.set(identifier, instance);
     return instance;

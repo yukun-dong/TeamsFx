@@ -180,12 +180,10 @@ export function setLogFunction(logFunction?: LogFunction): void {
   internalLogger.customLogFunction = logFunction;
 }
 
-function registerLogger() {
+export function registerLogger() {
   const factory = (container: ComponentContainer) => {
     return internalLogger;
   };
   const loggerComponent = new ComponentMetadata("logger", factory, false);
   _registerComponent(loggerComponent);
 }
-
-registerLogger();
