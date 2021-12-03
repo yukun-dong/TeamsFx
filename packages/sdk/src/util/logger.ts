@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { _registerComponent } from "../container/api";
-import { ComponentMetadata } from "../container/metadata";
-import { ComponentContainer } from "../container/types";
+import { registerComponent } from "../internal/api";
+import { ComponentMetadata } from "../internal/metadata";
+import { ComponentContainer } from "../internal/types";
 
 /**
  * Interface for customized logger.
@@ -185,5 +185,5 @@ export function registerLogger() {
     return internalLogger;
   };
   const loggerComponent = new ComponentMetadata("logger", factory, false);
-  _registerComponent(loggerComponent);
+  registerComponent(loggerComponent);
 }

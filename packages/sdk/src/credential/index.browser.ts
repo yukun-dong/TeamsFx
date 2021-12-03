@@ -1,11 +1,11 @@
-import { _initializeComponent, _registerComponent, _resolveComponent } from "../container/api";
-import { ComponentContainer, InitializeOptions } from "../container/types";
-import { ComponentMetadata } from "../container/metadata";
+import { initializeComponent, registerComponent, resolveComponent } from "../internal/api";
+import { ComponentContainer, InitializeOptions } from "../internal/types";
+import { ComponentMetadata } from "../internal/metadata";
 import { TeamsUserCredential } from "./teamsUserCredential.browser";
 import { InternalLogger } from "../util/logger";
 import { AuthenticationConfiguration } from "../models/configuration";
 import { TokenCredential } from "@azure/core-auth";
-import { getConfigFromEnv } from "../core/configurationProvider";
+import { getTeamsFxConfigFromEnv } from "../util/configurationProvider";
 
 export function registerCredential() {
   const teamsUserCredentialfactory = (
@@ -16,18 +16,18 @@ export function registerCredential() {
     const logger = componentContainer.resolve("logger") as InternalLogger;
     return new TeamsUserCredential(authOption, logger);
   };
-  _registerComponent(
+  registerComponent(
     new ComponentMetadata("TeamsUserCredential", teamsUserCredentialfactory, false)
   );
 }
 
-export function initializeCredential(config?: AuthenticationConfiguration, accessToken?: string) {
-  const authOption = config ?? getConfigFromEnv();
-  _initializeComponent("TeamsUserCredential", { ...authOption });
+export function initializeTeamsFx(config?: AuthenticationConfiguration, accessToken?: string) {
+  const authOption = config ?? getTeamsFxConfigFromEnv();
+  initializeComponent("TeamsUserCredential", { ...authOption });
 }
 
 export function getUserCredential(): TokenCredential {
-  return _resolveComponent("TeamsUserCredential") as TeamsUserCredential;
+  return resolveComponent("TeamsUserCredential") as TeamsUserCredential;
 }
 
 export async function authorize(scopes: string | string[], credential?: TokenCredential) {

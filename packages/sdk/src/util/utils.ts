@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { ErrorWithCode, ErrorCode } from "../core/errors";
+import { ErrorWithCode, ErrorCode } from "../errors";
 import { SSOTokenInfoBase, SSOTokenV1Info, SSOTokenV2Info } from "../models/ssoTokenInfo";
 import { UserInfo } from "../models/userinfo";
 import jwt_decode from "jwt-decode";

@@ -13,7 +13,7 @@ import {
   parseJwt,
   validateScopesType,
 } from "../util/utils";
-import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
+import { ErrorWithCode, ErrorCode, ErrorMessage } from "../errors";
 import { createConfidentialClientApplication } from "../util/utils.node";
 
 /**

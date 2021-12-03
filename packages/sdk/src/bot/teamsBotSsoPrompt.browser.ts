@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { DialogContext, DialogTurnResult } from "botbuilder-dialogs";
-import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
+import { ErrorWithCode, ErrorCode, ErrorMessage } from "../errors";
 import { formatString } from "../util/utils";
 
 /**

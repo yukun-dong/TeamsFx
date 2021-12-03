@@ -3,7 +3,7 @@
 
 import { AccessToken, TokenCredential, GetTokenOptions } from "@azure/identity";
 import { UserInfo } from "../models/userinfo";
-import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
+import { ErrorWithCode, ErrorCode, ErrorMessage } from "../errors";
 import { formatString } from "../util/utils";
 import { AuthenticationConfiguration } from "../models/configuration";
 import { InternalLogger } from "../util/logger";

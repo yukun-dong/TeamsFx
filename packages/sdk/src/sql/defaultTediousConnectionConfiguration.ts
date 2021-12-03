@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { getResourceConfiguration } from "./configurationProvider";
-import { ResourceType } from "../models/configuration";
+import { SqlConfiguration } from "../models/configuration";
+// import { ResourceType } from "../models/configuration";
 import { AccessToken, ManagedIdentityCredential } from "@azure/identity";
-import { ErrorWithCode, ErrorCode } from "./errors";
 import { ConnectionConfig } from "tedious";
-import { internalLogger } from "../util/logger";
+import { Logger } from "../util/logger";
+import { ErrorWithCode, ErrorCode } from "../errors";
 
 /**
  * SQL connection configuration instance.
@@ -22,6 +22,13 @@ export class DefaultTediousConnectionConfiguration {
    * https://docs.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-connect-msi
    */
   private readonly defaultSQLScope: string = "https://database.windows.net/";
+  private logger: Logger;
+  private configuration: SqlConfiguration;
+
+  public constructor(config: SqlConfiguration, logger: Logger) {
+    this.logger = logger;
+    this.configuration = config;
+  }
 
   /**
    * Generate connection configuration consumed by tedious.
@@ -35,12 +42,12 @@ export class DefaultTediousConnectionConfiguration {
    * @beta
    */
   public async getConfig(): Promise<ConnectionConfig> {
-    internalLogger.info("Get SQL configuration");
-    const configuration = <SqlConfiguration>getResourceConfiguration(ResourceType.SQL);
+    this.logger.info("Get SQL configuration");
+    const configuration = this.configuration;
 
     if (!configuration) {
       const errMsg = "SQL resource configuration not exist";
-      internalLogger.error(errMsg);
+      this.logger.error(errMsg);
       throw new ErrorWithCode(errMsg, ErrorCode.InvalidConfiguration);
     }
 
@@ -52,13 +59,13 @@ export class DefaultTediousConnectionConfiguration {
 
     if (!this.isMsiAuthentication()) {
       const configWithUPS = this.generateDefaultConfig(configuration);
-      internalLogger.verbose("SQL configuration with username and password generated");
+      this.logger.verbose("SQL configuration with username and password generated");
       return configWithUPS;
     }
 
     try {
       const configWithToken = await this.generateTokenConfig(configuration);
-      internalLogger.verbose("SQL configuration with MSI token generated");
+      this.logger.verbose("SQL configuration with MSI token generated");
       return configWithToken;
     } catch (error) {
       throw error;
@@ -72,15 +79,13 @@ export class DefaultTediousConnectionConfiguration {
    * @internal
    */
   private isMsiAuthentication(): boolean {
-    internalLogger.verbose(
-      "Check connection config using MSI access token or username and password"
-    );
-    const configuration = <SqlConfiguration>getResourceConfiguration(ResourceType.SQL);
+    this.logger.verbose("Check connection config using MSI access token or username and password");
+    const configuration = this.configuration;
     if (configuration?.sqlUsername != null && configuration?.sqlPassword != null) {
-      internalLogger.verbose("Login with username and password");
+      this.logger.verbose("Login with username and password");
       return false;
     }
-    internalLogger.verbose("Login with MSI identity");
+    this.logger.verbose("Login with MSI identity");
     return true;
   }
 
@@ -93,9 +98,9 @@ export class DefaultTediousConnectionConfiguration {
    * @internal
    */
   private isSQLConfigurationValid(sqlConfig: SqlConfiguration) {
-    internalLogger.verbose("Check SQL configuration if valid");
+    this.logger.verbose("Check SQL configuration if valid");
     if (!sqlConfig.sqlServerEndpoint) {
-      internalLogger.error("SQL configuration is not valid without SQL server endpoint exist");
+      this.logger.error("SQL configuration is not valid without SQL server endpoint exist");
       throw new ErrorWithCode(
         "SQL configuration error without SQL server endpoint exist",
         ErrorCode.InvalidConfiguration
@@ -107,10 +112,10 @@ export class DefaultTediousConnectionConfiguration {
       } ${sqlConfig.sqlUsername ? "" : "SQL username "} ${
         sqlConfig.sqlPassword ? "" : "SQL password"
       } exist`;
-      internalLogger.error(errMsg);
+      this.logger.error(errMsg);
       throw new ErrorWithCode(errMsg, ErrorCode.InvalidConfiguration);
     }
-    internalLogger.verbose("SQL configuration is valid");
+    this.logger.verbose("SQL configuration is valid");
   }
 
   /**
@@ -122,7 +127,7 @@ export class DefaultTediousConnectionConfiguration {
    * @internal
    */
   private generateDefaultConfig(sqlConfig: SqlConfiguration): ConnectionConfig {
-    internalLogger.verbose(
+    this.logger.verbose(
       `SQL server ${sqlConfig.sqlServerEndpoint}, user name ${sqlConfig.sqlUsername}, database name ${sqlConfig.sqlDatabaseName}`
     );
 
@@ -152,7 +157,7 @@ export class DefaultTediousConnectionConfiguration {
    * @internal
    */
   private async generateTokenConfig(sqlConfig: SqlConfiguration): Promise<ConnectionConfig> {
-    internalLogger.verbose("Generate tedious config with MSI token");
+    this.logger.verbose("Generate tedious config with MSI token");
 
     let token: AccessToken | null;
     try {
@@ -160,7 +165,7 @@ export class DefaultTediousConnectionConfiguration {
       token = await credential.getToken(this.defaultSQLScope);
     } catch (error) {
       const errMsg = "Get user MSI token failed";
-      internalLogger.error(errMsg);
+      this.logger.error(errMsg);
       throw new ErrorWithCode(errMsg, ErrorCode.InternalError);
     }
     if (token) {
@@ -177,12 +182,12 @@ export class DefaultTediousConnectionConfiguration {
           encrypt: true,
         },
       };
-      internalLogger.verbose(
+      this.logger.verbose(
         `Generate token configuration success, server endpoint is ${sqlConfig.sqlServerEndpoint}, database name is ${sqlConfig.sqlDatabaseName}`
       );
       return config;
     }
-    internalLogger.error(
+    this.logger.error(
       `Generate token configuration, server endpoint is ${sqlConfig.sqlServerEndpoint}, MSI token is not valid`
     );
     throw new ErrorWithCode("MSI token is not valid", ErrorCode.InternalError);
@@ -197,45 +202,4 @@ export class DefaultTediousConnectionConfiguration {
 enum TediousAuthenticationType {
   default = "default",
   MSI = "azure-active-directory-access-token",
-}
-
-/**
- * Configuration for SQL resource.
- * @internal
- */
-interface SqlConfiguration {
-  /**
-   * SQL server endpoint.
-   *
-   * @readonly
-   */
-  readonly sqlServerEndpoint: string;
-
-  /**
-   * SQL server username.
-   *
-   * @readonly
-   */
-  readonly sqlUsername: string;
-
-  /**
-   * SQL server password.
-   *
-   * @readonly
-   */
-  readonly sqlPassword: string;
-
-  /**
-   * SQL server database name.
-   *
-   * @readonly
-   */
-  readonly sqlDatabaseName: string;
-
-  /**
-   * Managed identity id.
-   *
-   * @readonly
-   */
-  readonly sqlIdentityId: string;
 }

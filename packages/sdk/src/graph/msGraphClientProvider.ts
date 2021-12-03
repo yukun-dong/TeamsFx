@@ -5,7 +5,7 @@ import { TokenCredential } from "@azure/identity";
 import { Client } from "@microsoft/microsoft-graph-client";
 import { MsGraphAuthProvider } from "./msGraphAuthProvider";
 import { InternalLogger, internalLogger } from "../util/logger";
-import { _resolveComponent } from "../container/api";
+import { resolveComponent } from "../internal/api";
 
 /**
  * Get Microsoft graph client.
@@ -75,10 +75,10 @@ export function getMicrosoftGraphClient(
   scopes?: string | string[],
   tokenCredential?: TokenCredential
 ): Client {
-  const logger = _resolveComponent("logger") as InternalLogger;
+  const logger = resolveComponent("logger") as InternalLogger;
   logger.info("Create Microsoft Graph Client");
   const credential =
-    tokenCredential ?? (_resolveComponent("OnBehalfOfUserCredential") as TokenCredential);
+    tokenCredential ?? (resolveComponent("OnBehalfOfUserCredential") as TokenCredential);
   const authProvider = new MsGraphAuthProvider(credential, scopes);
   const graphClient = Client.initWithMiddleware({
     authProvider,

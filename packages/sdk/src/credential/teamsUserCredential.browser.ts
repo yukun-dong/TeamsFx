@@ -3,8 +3,8 @@
 
 import { AccessToken, TokenCredential, GetTokenOptions } from "@azure/identity";
 import { UserInfo } from "../models/userinfo";
-import { ErrorCode, ErrorMessage, ErrorWithCode } from "../core/errors";
-import { Cache } from "../core/cache.browser";
+import { ErrorCode, ErrorMessage, ErrorWithCode } from "../errors";
+import { Cache } from "../util/cache.browser";
 import * as microsoftTeams from "@microsoft/teams-js";
 import { AuthenticationConfiguration } from "../models/configuration";
 import { AuthCodeResult } from "../models/authCodeResult";

@@ -98,9 +98,9 @@ const es2017Builds = [
   },
 ];
 
-const containerBuild = [
+const internalApiBuild = [
   {
-    input: "./src/container/index.ts",
+    input: "./src/internal/index.ts",
     output: {
       file: "dist/internal.js",
       format: "es",
@@ -113,7 +113,7 @@ const containerBuild = [
     },
   },
   {
-    input: "./src/container/index.ts",
+    input: "./src/internal/index.ts",
     output: {
       file: "dist/internal.cjs",
       format: "cjs",
@@ -126,10 +126,10 @@ const containerBuild = [
     },
   },
   {
-    input: "./dist/src/container/index.d.ts",
+    input: "./dist/src/internal/index.d.ts",
     output: [{ file: "types/internal.d.ts", format: "es" }],
     plugins: [dts()],
   },
 ];
 
-export default [...es5Builds, ...es2017Builds, ...containerBuild];
+export default [...es5Builds, ...es2017Builds, ...internalApiBuild];

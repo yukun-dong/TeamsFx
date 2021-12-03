@@ -1,12 +1,12 @@
-import { _initializeComponent, _registerComponent, _resolveComponent } from "../container/api";
-import { ComponentContainer, InitializeOptions } from "../container/types";
-import { ComponentMetadata } from "../container/metadata";
+import { initializeComponent, registerComponent, resolveComponent } from "../internal/api";
+import { ComponentContainer, InitializeOptions } from "../internal/types";
+import { ComponentMetadata } from "../internal/metadata";
 import { AuthenticationConfiguration } from "../models/configuration";
 import { InternalLogger } from "../util/logger";
 import { M365TenantCredential } from "./m365TenantCredential";
 import { OnBehalfOfUserCredential } from "./onBehalfOfUserCredential";
 import { TokenCredential } from "@azure/core-auth";
-import { getConfigFromEnv } from "../core/configurationProvider";
+import { getTeamsFxConfigFromEnv } from "../util/configurationProvider";
 
 export function registerCredential() {
   const m365Factory = (componentContainer: ComponentContainer, options?: InitializeOptions) => {
@@ -14,7 +14,7 @@ export function registerCredential() {
     const logger = componentContainer.resolve("logger") as InternalLogger;
     return new M365TenantCredential(authOption, logger);
   };
-  _registerComponent(new ComponentMetadata("M365TenantCredential", m365Factory, false));
+  registerComponent(new ComponentMetadata("M365TenantCredential", m365Factory, false));
 
   const onBehalfOfUserCredentialFactory = (
     componentContainer: ComponentContainer,
@@ -27,26 +27,26 @@ export function registerCredential() {
     const logger = componentContainer.resolve("logger") as InternalLogger;
     return new OnBehalfOfUserCredential(accessToken, authOption, logger);
   };
-  _registerComponent(
+  registerComponent(
     new ComponentMetadata("OnBehalfOfUserCredential", onBehalfOfUserCredentialFactory, false)
   );
 }
 
-export function initializeCredential(config?: AuthenticationConfiguration, accessToken?: string) {
-  const authOption = config ?? getConfigFromEnv();
-  _initializeComponent("OnBehalfOfUserCredential", {
+export function initializeTeamsFx(config?: AuthenticationConfiguration, accessToken?: string) {
+  const authOption = config ?? getTeamsFxConfigFromEnv();
+  initializeComponent("OnBehalfOfUserCredential", {
     authOption: authOption,
     accessToken: accessToken,
   });
-  _initializeComponent("M365TenantCredential", { ...authOption });
+  initializeComponent("M365TenantCredential", { ...authOption });
 }
 
 export function getUserCredential(): TokenCredential {
-  return _resolveComponent("OnBehalfOfUserCredential") as OnBehalfOfUserCredential;
+  return resolveComponent("OnBehalfOfUserCredential") as OnBehalfOfUserCredential;
 }
 
 export function getAppCredential(): M365TenantCredential {
-  return _resolveComponent("M365TenantCredential") as M365TenantCredential;
+  return resolveComponent("M365TenantCredential") as M365TenantCredential;
 }
 
 export async function authorize(scopes: string | string[], credential?: TokenCredential) {

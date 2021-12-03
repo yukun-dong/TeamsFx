@@ -6,7 +6,7 @@ import { assert, expect, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import { loadConfiguration, TeamsUserCredential } from "../../../src/index.browser";
 import * as sinon from "sinon";
-import { ErrorCode, ErrorMessage, ErrorWithCode } from "../../../src/core/errors";
+import { ErrorCode, ErrorMessage, ErrorWithCode } from "../../../src/errors";
 
 chaiUse(chaiPromises);
 

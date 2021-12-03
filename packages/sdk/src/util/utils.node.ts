@@ -2,7 +2,7 @@ import { ConfidentialClientApplication, NodeAuthOptions } from "@azure/msal-node
 import { AuthenticationConfiguration } from "../models/configuration";
 import { ClientCertificate, getAuthority } from "./utils";
 import { internalLogger } from "./logger";
-import { ErrorWithCode, ErrorCode } from "../core/errors";
+import { ErrorWithCode, ErrorCode } from "../errors";
 import { createHash } from "crypto";
 
 /**

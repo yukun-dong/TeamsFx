@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { ErrorWithCode, ErrorCode, ErrorMessage } from "./errors";
+import { ErrorWithCode, ErrorCode, ErrorMessage } from "../errors";
 import { ConnectionConfig } from "tedious";
 import { formatString } from "../util/utils";
 

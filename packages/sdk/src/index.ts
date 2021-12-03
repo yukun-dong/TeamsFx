@@ -3,32 +3,43 @@
 
 import { registerLogger } from "./util/logger";
 
-export { ErrorWithCode, ErrorCode } from "./core/errors";
+export { ErrorWithCode, ErrorCode } from "./errors";
 
 export {
-  getAuthenticationConfiguration,
-  getResourceConfiguration,
-  loadConfiguration,
-  getConfigFromEnv,
-} from "./core/configurationProvider";
+  getTeamsFxConfigFromEnv,
+  getApiConfigFromEnv,
+  getSqlConfigFromEnv,
+} from "./util/configurationProvider";
 
+// credential
 export { M365TenantCredential } from "./credential/m365TenantCredential";
 export { OnBehalfOfUserCredential } from "./credential/onBehalfOfUserCredential";
 export { TeamsUserCredential } from "./credential/teamsUserCredential";
 
-export { MsGraphAuthProvider } from "./core/msGraphAuthProvider";
-export { createMicrosoftGraphClient, getMicrosoftGraphClient } from "./core/msGraphClientProvider";
-export { DefaultTediousConnectionConfiguration } from "./core/defaultTediousConnectionConfiguration";
+export {
+  initializeTeamsFx,
+  getUserCredential,
+  getAppCredential,
+  authorize,
+} from "./credential/index";
+
+// graph
+export { MsGraphAuthProvider } from "./graph/msGraphAuthProvider";
+export { getMicrosoftGraphClient } from "./graph/msGraphClientProvider";
+export { DefaultTediousConnectionConfiguration } from "./sql/defaultTediousConnectionConfiguration";
+
+// sql
+export { initializeSqlAsync, getSqlConnection, connect, execQuery, close } from "./sql";
 
 export { TeamsBotSsoPrompt, TeamsBotSsoPromptSettings } from "./bot/teamsBotSsoPrompt";
 export { TeamsBotSsoPromptTokenResponse } from "./bot/teamsBotSsoPromptTokenResponse";
 
+// model
 export { UserInfo } from "./models/userinfo";
 export {
-  Configuration,
   AuthenticationConfiguration,
-  ResourceConfiguration,
-  ResourceType,
+  ApiConfiguration,
+  SqlConfiguration,
 } from "./models/configuration";
 
 export {
@@ -41,11 +52,6 @@ export {
   setLogFunction,
 } from "./util/logger";
 
-export {
-  initializeCredential,
-  getUserCredential,
-  getAppCredential,
-  authorize,
-} from "./credential/index";
+export { initializeApi, getApi, callApi } from "./api";
 
 registerLogger();

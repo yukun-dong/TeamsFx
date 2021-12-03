@@ -3,7 +3,7 @@
 
 import { AuthenticationProvider } from "@microsoft/microsoft-graph-client";
 import { TokenCredential } from "@azure/identity";
-import { ErrorWithCode, ErrorCode } from "./errors";
+import { ErrorWithCode, ErrorCode } from "../errors";
 import { internalLogger } from "../util/logger";
 import { validateScopesType } from "../util/utils";
 

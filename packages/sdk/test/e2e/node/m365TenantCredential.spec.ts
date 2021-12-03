@@ -5,7 +5,7 @@ import { assert, expect, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import mockedEnv from "mocked-env";
 import { loadConfiguration, M365TenantCredential } from "../../../src";
-import { ErrorCode, ErrorWithCode } from "../../../src/core/errors";
+import { ErrorCode, ErrorWithCode } from "../../../src/errors";
 import jwtDecode from "jwt-decode";
 import {
   MockEnvironmentVariable,

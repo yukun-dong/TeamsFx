@@ -2,26 +2,6 @@
 // Licensed under the MIT license.
 
 /**
- * Configuration for current environment.
- * @beta
- */
-export interface Configuration {
-  /**
-   * Authentication related configuration.
-   *
-   * @readonly
-   */
-  readonly authentication?: AuthenticationConfiguration;
-
-  /**
-   * Configuration for resources.
-   *
-   * @readonly
-   */
-  readonly resources?: ResourceConfiguration[];
-}
-
-/**
  * Authentication related configuration.
  * @beta
  */
@@ -82,46 +62,62 @@ export interface AuthenticationConfiguration {
 }
 
 /**
- * Configuration for resources.
- * @beta
+ * Configuration for SQL resource.
+ * @internal
  */
-export interface ResourceConfiguration {
+export interface SqlConfiguration {
   /**
-   * Resource type.
+   * SQL server endpoint.
    *
    * @readonly
    */
-  readonly type: ResourceType;
+  readonly sqlServerEndpoint?: string;
 
   /**
-   * Resource name.
+   * SQL server username.
    *
    * @readonly
    */
-  readonly name: string;
+  readonly sqlUsername?: string;
 
   /**
-   * Config for the resource.
+   * SQL server password.
    *
    * @readonly
    */
-  readonly properties: { [index: string]: any };
+  readonly sqlPassword?: string;
+
+  /**
+   * SQL server database name.
+   *
+   * @readonly
+   */
+  readonly sqlDatabaseName?: string;
+
+  /**
+   * Managed identity id.
+   *
+   * @readonly
+   */
+  readonly sqlIdentityId?: string;
 }
 
 /**
- * Available resource type.
- * @beta
+ * Configuration for Azure Function resource.
+ * @internal
  */
-export enum ResourceType {
+export interface ApiConfiguration {
   /**
-   * SQL database.
+   * Name of the function in endpoint.
    *
+   * @readonly
    */
-  SQL,
+  readonly functionName?: string;
 
   /**
-   * Rest API.
+   * Function endpoint.
    *
+   * @readonly
    */
-  API,
+  readonly functionEndpoint?: string;
 }

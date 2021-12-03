@@ -5,7 +5,7 @@ import { AccessToken, TokenCredential, GetTokenOptions } from "@azure/identity";
 import { AuthenticationConfiguration } from "../models/configuration";
 import { InternalLogger } from "../util/logger";
 import { validateScopesType, formatString, getScopesArray } from "../util/utils";
-import { ErrorCode, ErrorMessage, ErrorWithCode } from "../core/errors";
+import { ErrorCode, ErrorMessage, ErrorWithCode } from "../errors";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import { createConfidentialClientApplication } from "../util/utils.node";
 

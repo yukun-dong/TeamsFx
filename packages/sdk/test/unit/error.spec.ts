@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import { ErrorWithCode, ErrorCode } from "../../src/core/errors";
+import { ErrorWithCode, ErrorCode } from "../../src/errors";
 
 describe("ErrorWithCode Tests", () => {
   const errorMessage = "error message";

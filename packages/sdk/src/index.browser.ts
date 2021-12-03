@@ -3,35 +3,26 @@
 
 import { registerLogger } from "./util/logger";
 
-export { ErrorWithCode, ErrorCode } from "./core/errors";
+export { ErrorWithCode, ErrorCode } from "./errors";
 
-export {
-  getAuthenticationConfiguration,
-  getResourceConfiguration,
-  loadConfiguration,
-  getConfigFromEnv,
-} from "./core/configurationProvider";
+export { getTeamsFxConfigFromEnv } from "./util/configurationProvider";
 
 export { M365TenantCredential } from "./credential/m365TenantCredential.browser";
 export { OnBehalfOfUserCredential } from "./credential/onBehalfOfUserCredential.browser";
 export { TeamsUserCredential } from "./credential/teamsUserCredential.browser";
 
-export { MsGraphAuthProvider } from "./core/msGraphAuthProvider";
-export {
-  createMicrosoftGraphClient,
-  getMicrosoftGraphClient,
-} from "./core/msGraphClientProvider.browser";
-export { DefaultTediousConnectionConfiguration } from "./core/defaultTediousConnectionConfiguration";
+export { MsGraphAuthProvider } from "./graph/msGraphAuthProvider";
+export { getMicrosoftGraphClient } from "./graph/msGraphClientProvider.browser";
+export { DefaultTediousConnectionConfiguration } from "./sql/defaultTediousConnectionConfiguration";
 
 export { TeamsBotSsoPrompt, TeamsBotSsoPromptSettings } from "./bot/teamsBotSsoPrompt.browser";
 export { TeamsBotSsoPromptTokenResponse } from "./bot/teamsBotSsoPromptTokenResponse";
 
 export { UserInfo } from "./models/userinfo";
 export {
-  Configuration,
   AuthenticationConfiguration,
-  ResourceConfiguration,
-  ResourceType,
+  ApiConfiguration,
+  SqlConfiguration,
 } from "./models/configuration";
 
 export {
@@ -45,10 +36,12 @@ export {
 } from "./util/logger";
 
 export {
-  initializeCredential,
+  initializeTeamsFx,
   getUserCredential,
   getAppCredential,
   authorize,
 } from "./credential/index.browser";
+
+export { initializeApi, getApi, callApi } from "./api/index.browser";
 
 registerLogger();

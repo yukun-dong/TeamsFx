@@ -19,7 +19,9 @@
   "types": "types/teamsfx.d.ts",
   "typesVersions": {
     "*": {
-      "internal": ["types/internal.d.ts"]
+      "internal": [
+        "types/internal.d.ts"
+      ]
     }
   },
   "scripts": {

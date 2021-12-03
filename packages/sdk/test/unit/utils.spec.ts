@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { assert, expect } from "chai";
-import { ErrorWithCode, ErrorCode } from "../../src/core/errors";
+import { ErrorWithCode, ErrorCode } from "../../src/errors";
 import { validateScopesType } from "../../src/util/utils";
 
 describe("Utils Tests", () => {

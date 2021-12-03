@@ -7,7 +7,7 @@ import * as chaiPromises from "chai-as-promised";
 import * as sinon from "sinon";
 import mockedEnv from "mocked-env";
 import { loadConfiguration, M365TenantCredential } from "../../../src";
-import { ErrorCode, ErrorWithCode } from "../../../src/core/errors";
+import { ErrorCode, ErrorWithCode } from "../../../src/errors";
 import * as fs from "fs";
 import { AuthenticationResult, ConfidentialClientApplication } from "@azure/msal-node";
 
