@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-export interface DependencyChcker {
-  ensureDependencies(dependencies: DependencyType[]): Promise<DependencyStatus>;
+export interface IDependencyChcker {
+  /**
+   * Ensure dependencies installed.
+   * @param dependencies Dependency types. If it is empty, do nothing.
+   * @param fastFail Default value: false.
+   */
+  ensureDependencies(dependencies: DependencyType[], fastFail: boolean): Promise<DependencyStatus>;
 }
 
 export enum DependencyType {
@@ -15,11 +20,12 @@ export enum DependencyType {
 }
 
 export type DependencyStatus = {
-  dependecy: DependencyType;
-  isEnabled: boolean;
+  name: DependencyType;
   isInstalled: boolean;
   isLinuxSupported: boolean;
   command: string;
+  supportedVersions: string[];
   errorName: string;
   errorMsg: string;
+  learnMore: string;
 };
