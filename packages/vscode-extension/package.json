@@ -678,7 +678,7 @@
         "background": {
           "activeOnStart": true,
           "beginsPattern": ".*",
-          "endsPattern": "Compiled|Failed"
+          "endsPattern": "to stop the server"
         },
         "severity": "error"
       },

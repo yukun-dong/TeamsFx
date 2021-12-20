@@ -195,7 +195,7 @@ export class TeamsfxTaskProvider implements vscode.TaskProvider {
   ): Promise<vscode.Task> {
     const command: string = constants.frontendStartCommand;
     definition = definition || { type: TeamsfxTaskProvider.type, command };
-    const commandLine = "npx react-scripts start";
+    const commandLine = "npm run start";
     const env = commonUtils.getFrontendLocalEnv(localEnv);
     const options: vscode.ShellExecutionOptions = {
       cwd: projectRoot,
