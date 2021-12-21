@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { NodeNotFoundError, NodeNotSupportedError } from "../common/errors";
+import { NodeNotFoundError, NodeNotSupportedError } from "../constant/errors";
 import { cpUtils } from "../util/cpUtils";
-import { DepsCheckerEvent } from "../common/telemetry";
+import { DepsCheckerEvent } from "../constant/telemetry";
 import { DepsLogger } from "../depsLogger";
 import { DepsTelemetry } from "../depsTelemetry";
 import { DepsInfo, DepsChecker } from "../depsChecker";
-import { Messages } from "../common/message";
+import { Messages } from "../constant/message";
 import {
   nodeNotFoundHelpLink,
   nodeNotSupportedForFunctionsHelpLink,
   nodeNotSupportedForSPFxHelpLink,
-} from "../common/helpLink";
+} from "../constant/helpLink";
 
 const NodeName = "Node.js";
 

@@ -27,6 +27,13 @@ export class NodeNotSupportedError extends DepsCheckerError {
     Object.setPrototypeOf(this, NodeNotSupportedError.prototype);
   }
 }
+export class LinuxNotSupportedError extends DepsCheckerError {
+  constructor(message: string, helpLink: string) {
+    super(message, helpLink);
+
+    Object.setPrototypeOf(this, LinuxNotSupportedError.prototype);
+  }
+}
 
 export class BackendExtensionsInstallError extends DepsCheckerError {
   constructor(message: string, helpLink: string) {

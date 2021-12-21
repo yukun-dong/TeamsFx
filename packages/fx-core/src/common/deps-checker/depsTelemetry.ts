@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { DepsCheckerEvent } from "./common/telemetry";
+import { DepsCheckerEvent } from "./constant/telemetry";
 
 export interface DepsTelemetry {
   sendEvent(

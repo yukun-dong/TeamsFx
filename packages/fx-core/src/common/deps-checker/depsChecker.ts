@@ -6,11 +6,14 @@ export interface DepsChecker {
 
   install(): Promise<void>;
 
+  command(): Promise<string>;
+
   getDepsInfo(): Promise<DepsInfo>;
 }
 
 export interface DepsInfo {
   name: string;
+  isLinuxSupported: boolean;
   installVersion?: string;
   supportedVersions: string[];
   details: Map<string, string>;

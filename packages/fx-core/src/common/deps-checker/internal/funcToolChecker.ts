@@ -6,16 +6,16 @@ import * as path from "path";
 import * as os from "os";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
 
-import { defaultHelpLink } from "../common/helpLink";
+import { defaultHelpLink } from "../constant/helpLink";
 import { runWithProgressIndicator } from "../util/progressIndicator";
-import { DepsCheckerError } from "../common/errors";
+import { DepsCheckerError } from "../constant/errors";
 import { cpUtils } from "../util/cpUtils";
 import { isWindows } from "../util/system";
-import { DepsCheckerEvent, TelemtryMessages } from "../common/telemetry";
+import { DepsCheckerEvent, TelemtryMessages } from "../constant/telemetry";
 import { DepsLogger } from "../depsLogger";
 import { DepsTelemetry } from "../depsTelemetry";
 import { DepsInfo, DepsChecker } from "../depsChecker";
-import { Messages } from "../common/message";
+import { Messages } from "../constant/message";
 
 export enum FuncVersion {
   v1 = "1",

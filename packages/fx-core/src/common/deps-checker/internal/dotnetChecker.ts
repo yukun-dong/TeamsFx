@@ -9,20 +9,20 @@ import * as util from "util";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
 import { performance } from "perf_hooks";
 
-import { dotnetFailToInstallHelpLink, dotnetExplanationHelpLink } from "../common/helpLink";
-import { DepsCheckerError } from "../common/errors";
+import { dotnetFailToInstallHelpLink, dotnetExplanationHelpLink } from "../constant/helpLink";
+import { DepsCheckerError } from "../constant/errors";
 import { runWithProgressIndicator } from "../util/progressIndicator";
 import { cpUtils } from "../util/cpUtils";
 import { isLinux, isWindows } from "../util/system";
-import { DepsCheckerEvent, TelemtryMessages } from "../common/telemetry";
+import { DepsCheckerEvent, TelemtryMessages } from "../constant/telemetry";
 import { DepsLogger } from "../depsLogger";
 import { DepsTelemetry } from "../depsTelemetry";
 import { DepsInfo, DepsChecker } from "../depsChecker";
-import { Messages } from "../common/message";
+import { Messages } from "../constant/message";
 
 const execFile = util.promisify(child_process.execFile);
 
-enum DotnetVersion {
+export enum DotnetVersion {
   v21 = "2.1",
   v31 = "3.1",
   v50 = "5.0",
@@ -37,8 +37,8 @@ export class DotnetChecker implements DepsChecker {
   private static encoding = "utf-8";
   private static timeout = 5 * 60 * 1000; // same as vscode-dotnet-runtime
   private static maxBuffer = 500 * 1024;
-  private static resourceDir = ""; // todo
 
+  private readonly _resourceDir: string; // todo
   private readonly _logger: DepsLogger;
   private readonly _telemetry: DepsTelemetry;
 
@@ -56,6 +56,7 @@ export class DotnetChecker implements DepsChecker {
     map.set("configPath", DotnetChecker.getDotnetConfigPath());
     return {
       name: DotnetCoreSDKName,
+      isLinuxSupported: false,
       installVersion: `${installVersion}`,
       supportedVersions: supportedVersions,
       details: map,
@@ -92,6 +93,9 @@ export class DotnetChecker implements DepsChecker {
   }
 
   public async install(): Promise<void> {
+    if (await this.isInstalled()) {
+      return;
+    }
     await this._logger.debug(`[start] cleanup bin/dotnet and config`);
     await DotnetChecker.cleanup();
     await this._logger.debug(`[end] cleanup bin/dotnet and config`);
@@ -130,7 +134,7 @@ export class DotnetChecker implements DepsChecker {
     this._telemetry.sendEvent(DepsCheckerEvent.dotnetInstallCompleted);
   }
 
-  public async getDotnetExecPath(): Promise<string> {
+  public async command(): Promise<string> {
     const execPath = await this.getDotnetExecPathFromConfig();
     return execPath || "dotnet";
   }
@@ -216,7 +220,7 @@ export class DotnetChecker implements DepsChecker {
   // from: https://github.com/dotnet/vscode-dotnet-runtime/blob/main/vscode-dotnet-runtime-library/src/Acquisition/AcquisitionInvoker.ts
   private async runDotnetInstallScript(version: DotnetVersion, installDir: string): Promise<void> {
     const command = await this.getInstallCommand(version, installDir);
-    const cwd = DotnetChecker.resourceDir;
+    const cwd = this.getResourceDir();
 
     const options: child_process.ExecFileOptions = {
       cwd: cwd,
@@ -380,7 +384,11 @@ export class DotnetChecker implements DepsChecker {
   }
 
   private getDotnetInstallScriptPath(): string {
-    return path.join(DotnetChecker.resourceDir, this.getDotnetInstallScriptName());
+    return path.join(this.getResourceDir(), this.getDotnetInstallScriptName());
+  }
+
+  public getResourceDir(): string {
+    return path.resolve(__dirname, "..", "..", "..", "..", "resource", "deps-checker");
   }
 
   private getDotnetInstallScriptName(): string {
