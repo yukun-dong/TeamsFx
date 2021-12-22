@@ -12,12 +12,7 @@ import {
   DotnetChecker,
   DotnetVersion,
 } from "../../../../src/common/deps-checker/internal/dotnetChecker";
-import { DepsInfo } from "../../../../src/common/deps-checker/depsChecker";
-import {
-  CustomOutputDotnetInstallScript,
-  CustomPathDotnetInstallScript,
-  ICustomDotnetInstallScript,
-} from "../adapters/testAdapter";
+import { DepsChecker, DepsInfo } from "../../../../src/common/deps-checker/depsChecker";
 import { logger } from "../adapters/testLogger";
 import { TestTelemetry } from "../adapters/testTelemetry";
 import {
@@ -26,35 +21,16 @@ import {
   getExecutionPolicyForCurrentUser,
   setExecutionPolicyForCurrentUser,
 } from "../utils/common";
+import * as checkerFactory from "../../../../src/common/deps-checker/checkerFactory";
 import * as sinon from "sinon";
-import process from "process";
-
-function createTestChecker(
-  hasTeamsfxBackend: boolean,
-  clickCancel = false,
-  dotnetCheckerEnabled = true,
-  funcToolCheckerEnabled = true,
-  nodeCheckerEnabled = true,
-  customDotnetInstallScript: ICustomDotnetInstallScript = new CustomOutputDotnetInstallScript()
-): DotnetChecker {
-  const testAdapter = new TestAdapter(
-    hasTeamsfxBackend,
-    clickCancel,
-    dotnetCheckerEnabled,
-    funcToolCheckerEnabled,
-    nodeCheckerEnabled,
-    customDotnetInstallScript
-  );
-  return new DotnetChecker(logger, new TestTelemetry());
-}
+import * as process from "process";
 
 describe("DotnetChecker E2E Test - first run", async () => {
-  beforeEach(async function (this: Mocha.Context) {
+  beforeEach(async function () {
     await dotnetUtils.cleanup();
     // cleanup to make sure the environment is clean before test
   });
-  // TODO: teardown vs afterEach?
-  afterEach(async function (this: Mocha.Context) {
+  afterEach(async function (t) {
     // cleanup to make sure the environment is clean
     await dotnetUtils.cleanup();
   });
@@ -63,7 +39,7 @@ describe("DotnetChecker E2E Test - first run", async () => {
     if (await commandExistsInPath(dotnetUtils.dotnetCommand)) {
       this.skip();
     }
-    const dotnetChecker = createTestChecker(true);
+    const dotnetChecker = checkerFactory.newDotnetChecker(logger, new TestTelemetry());
 
     const isInstalled = await dotnetChecker.isInstalled();
     assert.isFalse(isInstalled, ".NET is not installed, but isInstalled() return true");
@@ -72,15 +48,12 @@ describe("DotnetChecker E2E Test - first run", async () => {
     assert.isNotNull(depsInfo);
     assert.isFalse(depsInfo.isLinuxSupported, "Linux should not support .NET");
 
-    try {
-      await dotnetChecker.install();
-    } catch (e) {
-      // do nothing
-    }
+    const shouldContinue = await dotnetChecker.resolve();
+    assert.isTrue(shouldContinue);
     await verifyPrivateInstallation(dotnetChecker);
   });
 
-  it(".NET SDK is not installed and the user homedir contains special characters", async function (this: Mocha.Context) {
+  it(".NET SDK is not installed and the user homedir contains special characters", async function () {
     if (isLinux() || (await commandExistsInPath(dotnetUtils.dotnetCommand))) {
       this.skip();
     }
@@ -90,28 +63,21 @@ describe("DotnetChecker E2E Test - first run", async () => {
 
     const [resourceDir, cleanupCallback] = await dotnetUtils.createMockResourceDir(specialUserName);
     try {
-      const dotnetChecker = createTestChecker(
-        true,
-        true,
-        true,
-        true,
-        true,
-        new CustomPathDotnetInstallScript(resourceDir)
-      );
+      const dotnetChecker = checkerFactory.newDotnetChecker(
+        logger,
+        new TestTelemetry()
+      ) as DotnetChecker;
       sinon.stub(dotnetChecker, "getResourceDir").returns(resourceDir);
 
-      try {
-        await dotnetChecker.install();
-      } catch (e) {
-        // do nothing
-      }
+      const shouldContinue = await dotnetChecker.resolve();
+      assert.isTrue(shouldContinue);
       await verifyPrivateInstallation(dotnetChecker);
     } finally {
       cleanupCallback();
     }
   });
 
-  it(".NET SDK supported version is installed globally", async function (this: Mocha.Context) {
+  it(".NET SDK supported version is installed globally", async function () {
     if (
       !(await dotnetUtils.hasAnyDotnetVersions(
         dotnetUtils.dotnetCommand,
@@ -124,7 +90,7 @@ describe("DotnetChecker E2E Test - first run", async () => {
     const dotnetFullPath = await commandExistsInPath(dotnetUtils.dotnetCommand);
     assert.isNotNull(dotnetFullPath);
 
-    const dotnetChecker = createTestChecker(true);
+    const dotnetChecker = checkerFactory.newDotnetChecker(logger, new TestTelemetry());
 
     assert.isTrue(await dotnetChecker.isInstalled());
 
@@ -140,11 +106,10 @@ describe("DotnetChecker E2E Test - first run", async () => {
     );
 
     // test dotnet executable is from config file.
-    const dotnetExecPath = await dotnetChecker.command();
-    assertPathEqual(dotnetExecPathFromConfig!, dotnetExecPath);
+    assertPathEqual(dotnetExecPathFromConfig!, await dotnetChecker.command());
   });
 
-  it(".NET SDK is too old", async function (this: Mocha.Context) {
+  it(".NET SDK is too old", async function () {
     const has21 = await dotnetUtils.hasDotnetVersion(
       dotnetUtils.dotnetCommand,
       dotnetUtils.dotnetOldVersion
@@ -161,43 +126,30 @@ describe("DotnetChecker E2E Test - first run", async () => {
     }
 
     assert.isTrue(await commandExistsInPath(dotnetUtils.dotnetCommand));
-    const dotnetChecker = createTestChecker(true);
-    try {
-      await dotnetChecker.install();
-    } catch (e) {
-      // do nothing
-    }
 
+    const dotnetChecker = checkerFactory.newDotnetChecker(logger, new TestTelemetry());
+    const shouldContinue = await dotnetChecker.resolve();
+
+    assert.isTrue(shouldContinue);
     await verifyPrivateInstallation(dotnetChecker);
   });
 
-  it(".NET SDK installation failure and manually install", async function (this: Mocha.Context) {
+  it(".NET SDK installation failure and manually install", async function () {
     if (isLinux() || (await commandExistsInPath(dotnetUtils.dotnetCommand))) {
       this.skip();
     }
 
     // DotnetChecker with mock dotnet-install script
-    const dotnetChecker = createTestChecker(
-      true,
-      false,
-      true,
-      true,
-      true,
-      new CustomOutputDotnetInstallScript(
-        true,
-        1,
-        "mock dotnet installing",
-        "mock dotnet install failure"
-      )
-    );
+    const dotnetChecker = checkerFactory.newDotnetChecker(
+      logger,
+      new TestTelemetry()
+    ) as DotnetChecker;
     const correctResourceDir = dotnetChecker.getResourceDir();
     sinon.stub(dotnetChecker, "getResourceDir").returns(getErrorResourceDir());
 
-    try {
-      await dotnetChecker.install();
-    } catch (e) {
-      // do nothing
-    }
+    const shouldContinue = await dotnetChecker.resolve();
+
+    assert.isFalse(shouldContinue);
     await verifyInstallationFailed(dotnetChecker);
 
     // DotnetChecker with correct dotnet-install script
@@ -217,11 +169,7 @@ describe("DotnetChecker E2E Test - first run", async () => {
           )
         );
 
-        try {
-          await dotnetChecker.install();
-        } catch (e) {
-          // do nothing
-        }
+        await dotnetChecker.resolve();
         assert.isTrue(await dotnetChecker.isInstalled());
         const dotnetExecPath = await dotnetChecker.command();
         assertPathEqual(dotnetExecPath, installedDotnetExecPath);
@@ -232,47 +180,54 @@ describe("DotnetChecker E2E Test - first run", async () => {
     );
   });
 
-  it("PowerShell ExecutionPolicy is default on Windows", async () => {
+  describe("PowerShell ExecutionPolicy is default on Windows", async () => {
     if (!isWindows()) {
       return;
     }
 
     let originalExecutionPolicy = "Unrestricted";
-    // TODO setup?
-    setup(async function (this: Mocha.Context) {
+    beforeEach(async function () {
       originalExecutionPolicy = await getExecutionPolicyForCurrentUser();
       await setExecutionPolicyForCurrentUser("Restricted");
     });
 
-    test(".NET SDK not installed and PowerShell ExecutionPolicy is default (Restricted) on Windows", async function (this: Mocha.Context) {
+    afterEach(async function () {
+      await setExecutionPolicyForCurrentUser(originalExecutionPolicy);
+    });
+    it(".NET SDK not installed and PowerShell ExecutionPolicy is default (Restricted) on Windows", async function () {
       if (await commandExistsInPath(dotnetUtils.dotnetCommand)) {
         this.skip();
       }
 
-      const dotnetChecker = createTestChecker(false);
-      await dotnetChecker.install();
+      const dotnetChecker = checkerFactory.newDotnetChecker(logger, new TestTelemetry());
+      const shouldContinue = await dotnetChecker.resolve();
 
+      assert.isTrue(shouldContinue);
       await verifyPrivateInstallation(dotnetChecker);
-    });
-
-    teardown(async function (this: Mocha.Context) {
-      await setExecutionPolicyForCurrentUser(originalExecutionPolicy);
     });
   });
 });
 
 describe("DotnetChecker E2E Test - second run", () => {
-  beforeEach(async function (this: Mocha.Context) {
+  beforeEach(async function () {
     await dotnetUtils.cleanup();
     // cleanup to make sure the environment is clean before test
   });
 
-  it("Valid dotnet.json file", async function (this: Mocha.Context) {
+  beforeEach(async function () {
+    // cleanup to make sure the environment is clean
+    await dotnetUtils.cleanup();
+  });
+
+  it("Valid dotnet.json file", async function () {
     if (await commandExistsInPath(dotnetUtils.dotnetCommand)) {
       this.skip();
     }
 
-    const dotnetChecker = createTestChecker(true);
+    const dotnetChecker = checkerFactory.newDotnetChecker(
+      logger,
+      new TestTelemetry()
+    ) as DotnetChecker;
     await dotnetUtils.withDotnet(
       dotnetChecker,
       DotnetVersion.v31,
@@ -298,9 +253,10 @@ describe("DotnetChecker E2E Test - second run", () => {
           }
         );
 
-        await dotnetChecker.install();
+        const shouldContinue = await dotnetChecker.resolve();
         const dotnetExecPath = await dotnetChecker.command();
 
+        assert.isTrue(shouldContinue);
         assertPathEqual(dotnetExecPath, installedDotnetExecPath);
         assert.isTrue(
           await dotnetUtils.hasDotnetVersion(dotnetExecPath, dotnetUtils.dotnetInstallVersion)
@@ -309,7 +265,7 @@ describe("DotnetChecker E2E Test - second run", () => {
     );
   });
 
-  test("Invalid dotnet.json file and .NET SDK not installed", async function (this: Mocha.Context) {
+  it("Invalid dotnet.json file and .NET SDK not installed", async function () {
     if (await commandExistsInPath(dotnetUtils.dotnetCommand)) {
       this.skip();
     }
@@ -327,18 +283,22 @@ describe("DotnetChecker E2E Test - second run", () => {
       }
     );
 
-    const dotnetChecker = createTestChecker(true);
-    await dotnetChecker.install();
+    const dotnetChecker = checkerFactory.newDotnetChecker(logger, new TestTelemetry());
+    const shouldContinue = await dotnetChecker.resolve();
 
+    assert.isTrue(shouldContinue);
     await verifyPrivateInstallation(dotnetChecker);
   });
 
-  test("Invalid dotnet.json file and .NET SDK installed", async function (this: Mocha.Context) {
+  it("Invalid dotnet.json file and .NET SDK installed", async function () {
     if (await commandExistsInPath(dotnetUtils.dotnetCommand)) {
       this.skip();
     }
 
-    const dotnetChecker = createTestChecker(true);
+    const dotnetChecker = checkerFactory.newDotnetChecker(
+      logger,
+      new TestTelemetry()
+    ) as DotnetChecker;
 
     await dotnetUtils.withDotnet(
       dotnetChecker,
@@ -358,7 +318,7 @@ describe("DotnetChecker E2E Test - second run", () => {
           }
         );
 
-        const shouldContinue = await dotnetChecker.install();
+        const shouldContinue = await dotnetChecker.resolve();
         const dotnetExecPath = await dotnetChecker.command();
         const dotnetExecPathFromConfig = await dotnetUtils.getDotnetExecPathFromConfig(
           dotnetUtils.dotnetConfigPath
@@ -374,14 +334,9 @@ describe("DotnetChecker E2E Test - second run", () => {
       }
     );
   });
-
-  teardown(async function (this: Mocha.Context) {
-    // cleanup to make sure the environment is clean
-    await dotnetUtils.cleanup();
-  });
 });
 
-async function verifyPrivateInstallation(dotnetChecker: DotnetChecker) {
+async function verifyPrivateInstallation(dotnetChecker: DepsChecker) {
   assert.isTrue(await dotnetChecker.isInstalled(), ".NET installation failed");
 
   assert.isTrue(
@@ -401,7 +356,7 @@ async function verifyPrivateInstallation(dotnetChecker: DotnetChecker) {
   );
 }
 
-async function verifyInstallationFailed(dotnetChecker: DotnetChecker) {
+async function verifyInstallationFailed(dotnetChecker: DepsChecker) {
   assert.isFalse(await dotnetChecker.isInstalled());
   assert.isNull(await dotnetUtils.getDotnetExecPathFromConfig(dotnetUtils.dotnetConfigPath));
   assert.equal(await dotnetChecker.command(), dotnetUtils.dotnetCommand);

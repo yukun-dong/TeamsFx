@@ -12,6 +12,7 @@ import {
   nodeNotFoundHelpLink,
   nodeNotSupportedForFunctionsHelpLink,
   nodeNotSupportedForSPFxHelpLink,
+  nodeNotSupportedForAzureHelpLink,
 } from "../constant/helpLink";
 
 const NodeName = "Node.js";
@@ -71,6 +72,22 @@ export abstract class NodeChecker implements DepsChecker {
     return true;
   }
 
+  public async resolve(): Promise<boolean> {
+    try {
+      if (!(await this.isInstalled())) {
+        await this.install();
+      }
+    } catch (error) {
+      await this._logger.printDetailLog();
+      await this._logger.error(`${error.message}, error = '${error}'`);
+      return false;
+    } finally {
+      this._logger.cleanup();
+    }
+
+    return true;
+  }
+
   public async install(): Promise<void> {
     return Promise.resolve();
   }
@@ -78,6 +95,7 @@ export abstract class NodeChecker implements DepsChecker {
   public async getDepsInfo(): Promise<DepsInfo> {
     return {
       name: NodeName,
+      isLinuxSupported: true,
       supportedVersions: await this.getSupportedVersions(),
       details: new Map<string, string>(),
     };
@@ -85,6 +103,10 @@ export abstract class NodeChecker implements DepsChecker {
 
   private static isVersionSupported(supportedVersion: string[], version: NodeVersion): boolean {
     return supportedVersion.includes(version.majorVersion);
+  }
+
+  public async command(): Promise<string> {
+    return "node";
   }
 }
 
@@ -136,20 +158,23 @@ export class AzureNodeChecker extends NodeChecker {
   protected readonly _nodeNotSupportedEvent = DepsCheckerEvent.nodeNotSupportedForAzure;
 
   protected async getNodeNotSupportedHelpLink(): Promise<string> {
-    // TODO: hasTeamsfxBackend
-    // if (await this._adapter.hasTeamsfxBackend()) {
-    return nodeNotSupportedForFunctionsHelpLink;
-    // } else {
-    //   return nodeNotSupportedForAzureHelpLink;
-    // }
+    return nodeNotSupportedForAzureHelpLink;
   }
 
   protected async getSupportedVersions(): Promise<string[]> {
-    // TODO: hasTeamsfxBackend
-    // if (await this._adapter.hasTeamsfxBackend()) {
+    return ["10", "12", "14", "16"];
+  }
+}
+
+export class FunctionNodeChecker extends NodeChecker {
+  protected readonly _nodeNotFoundHelpLink = nodeNotFoundHelpLink;
+  protected readonly _nodeNotSupportedEvent = DepsCheckerEvent.nodeNotSupportedForAzure;
+
+  protected async getNodeNotSupportedHelpLink(): Promise<string> {
+    return nodeNotSupportedForFunctionsHelpLink;
+  }
+
+  protected async getSupportedVersions(): Promise<string[]> {
     return ["10", "12", "14"];
-    // } else {
-    //   return ["10", "12", "14", "16"];
-    // }
   }
 }

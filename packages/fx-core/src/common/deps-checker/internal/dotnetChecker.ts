@@ -38,7 +38,6 @@ export class DotnetChecker implements DepsChecker {
   private static timeout = 5 * 60 * 1000; // same as vscode-dotnet-runtime
   private static maxBuffer = 500 * 1024;
 
-  private readonly _resourceDir: string; // todo
   private readonly _logger: DepsLogger;
   private readonly _telemetry: DepsTelemetry;
 
@@ -92,10 +91,23 @@ export class DotnetChecker implements DepsChecker {
     return false;
   }
 
-  public async install(): Promise<void> {
-    if (await this.isInstalled()) {
-      return;
+  public async resolve(): Promise<boolean> {
+    try {
+      if (!(await this.isInstalled())) {
+        await this.install();
+      }
+    } catch (error) {
+      await this._logger.printDetailLog();
+      await this._logger.error(`${error.message}, error = '${error}'`);
+      return false;
+    } finally {
+      this._logger.cleanup();
     }
+
+    return true;
+  }
+
+  public async install(): Promise<void> {
     await this._logger.debug(`[start] cleanup bin/dotnet and config`);
     await DotnetChecker.cleanup();
     await this._logger.debug(`[end] cleanup bin/dotnet and config`);

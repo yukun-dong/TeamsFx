@@ -3,6 +3,7 @@
 
 /**
  * Ensure dependencies installed.
+ * Order: todo
  * @param dependencies Dependency types. If it is empty, do nothing.
  * @param options If fastFail is false, it will continue even if one of the dependencies fails to install. Default value  is true
  */
@@ -15,16 +16,16 @@ export async function ensureDependencies(
 }
 
 export type DepsOptions = {
-  source: string;
+  // source: string; todo
   fastFail?: boolean;
 };
 
 export enum DependencyType {
+  AzureNode = "azure-node",
+  FunctionNode = "function-node",
+  SpfxNode = "spfx-node",
   Dotnet = "dotnet",
   FuncCoreTools = "func-core-tools",
-  Bicep = "bicep",
-  AzureNode = "azure-node",
-  SpfxNode = "spfx-node",
   Ngrok = "ngrok",
 }
 

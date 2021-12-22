@@ -126,21 +126,6 @@ export async function withDotnet(
   }
 }
 
-export async function createTmpBackendProjectDir(
-  csprojFileName: string
-): Promise<[string, () => void]> {
-  const [dir, cleanupCallback] = await createTmpDir();
-
-  const csprojPath = path.resolve(
-    __dirname,
-    "../../../../../../../templates/function-base/ts/default/extensions.csproj"
-  );
-  const targetPath = path.join(dir, csprojFileName);
-  await fs.copyFile(csprojPath, targetPath, fs.constants.COPYFILE_EXCL);
-
-  return [dir, cleanupCallback];
-}
-
 export async function createMockResourceDir(dirName: string): Promise<[string, () => void]> {
   const [dir, cleanupCallback] = await createTmpDir();
 

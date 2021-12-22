@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { cpUtils } from "../../../../src/debug/depsChecker/cpUtils";
+import { cpUtils } from "../../../../src/common/deps-checker/util/cpUtils";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
 import * as path from "path";
 import * as os from "os";

@@ -4,7 +4,7 @@
 export interface DepsChecker {
   isInstalled(): Promise<boolean>;
 
-  install(): Promise<void>;
+  resolve(): Promise<boolean>;
 
   command(): Promise<string>;
 

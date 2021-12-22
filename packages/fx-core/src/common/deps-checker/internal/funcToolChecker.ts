@@ -44,10 +44,27 @@ export class FuncToolChecker implements DepsChecker {
   public getDepsInfo(): Promise<DepsInfo> {
     return Promise.resolve({
       name: funcToolName,
+      isLinuxSupported: false,
       installVersion: installVersion,
       supportedVersions: supportedVersions,
       details: new Map<string, string>(),
     });
+  }
+
+  public async resolve(): Promise<boolean> {
+    try {
+      if (!(await this.isInstalled())) {
+        await this.install();
+      }
+    } catch (error) {
+      await this._logger.printDetailLog();
+      await this._logger.error(`${error.message}, error = '${error}'`);
+      return false;
+    } finally {
+      this._logger.cleanup();
+    }
+
+    return true;
   }
 
   public async isInstalled(): Promise<boolean> {
@@ -97,6 +114,9 @@ export class FuncToolChecker implements DepsChecker {
   public async install(): Promise<void> {
     if (!(await this.hasNPM())) {
       this.handleNpmNotFound();
+    }
+    if (await this.isInstalled()) {
+      return;
     }
 
     await this.cleanup();
@@ -177,7 +197,7 @@ export class FuncToolChecker implements DepsChecker {
     );
   }
 
-  public async getFuncCommand(): Promise<string> {
+  public async command(): Promise<string> {
     if (await this.isPortableFuncInstalled()) {
       return `node "${FuncToolChecker.getPortableFuncExecPath()}"`;
     }

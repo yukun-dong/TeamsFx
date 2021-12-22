@@ -4,28 +4,19 @@
 import * as chai from "chai";
 import * as spies from "chai-spies";
 import * as ngrokUtils from "../utils/ngrok";
-import { IDepsAdapter } from "../../../../src/debug/depsChecker/checker";
-import { TestAdapter } from "../adapters/testAdapter";
 import { logger } from "../adapters/testLogger";
 import { TestTelemetry } from "../adapters/testTelemetry";
-import { NgrokChecker } from "../../../../src/debug/depsChecker/ngrokChecker";
+import { NgrokChecker } from "../../../../src/common/deps-checker/internal/ngrokChecker";
 import * as path from "path";
 import * as os from "os";
-import { cpUtils } from "../../../../src/debug/depsChecker/cpUtils";
+import { cpUtils } from "../../../../src/common/deps-checker/util/cpUtils";
+import * as checkerFactory from "../../../../src/common/deps-checker/checkerFactory";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
 
 chai.use(spies);
 const expect = chai.expect;
 const assert = chai.assert;
 const sandbox = chai.spy.sandbox();
-
-function createTestChecker(): [NgrokChecker, IDepsAdapter] {
-  const testAdapter = new TestAdapter(false, false, false, false, false);
-  testAdapter.enableNgrok();
-  const telemetry = new TestTelemetry();
-  const ngrokChecker = new NgrokChecker(testAdapter, logger, telemetry);
-  return [ngrokChecker, testAdapter];
-}
 
 suite("NgrokChecker E2E Test", async () => {
   setup(async function (this: Mocha.Context) {
@@ -35,7 +26,10 @@ suite("NgrokChecker E2E Test", async () => {
   });
 
   test("not install + special character dir", async function (this: Mocha.Context) {
-    const [ngrokChecker] = createTestChecker();
+    const ngrokChecker = checkerFactory.newNgrokChecker(
+      logger,
+      new TestTelemetry()
+    ) as NgrokChecker;
     sandbox.on(ngrokChecker, "getDefaultInstallPath", () =>
       path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "ngrok", "Aarón García", "for test")
     );

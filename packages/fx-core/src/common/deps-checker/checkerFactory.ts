@@ -5,12 +5,15 @@ import { DotnetChecker } from "./internal/dotnetChecker";
 import { DepsLogger } from "./depsLogger";
 import { DepsTelemetry } from "./depsTelemetry";
 import { DepsChecker } from "./depsChecker";
-import { AzureNodeChecker, SPFxNodeChecker } from "./internal/nodeChecker";
+import { AzureNodeChecker, SPFxNodeChecker, FunctionNodeChecker } from "./internal/nodeChecker";
 import { FuncToolChecker } from "./internal/funcToolChecker";
 import { NgrokChecker } from "./internal/ngrokChecker";
 
 export function newAzureNodeChecker(logger: DepsLogger, telemetry: DepsTelemetry): DepsChecker {
   return new AzureNodeChecker(logger, telemetry);
+}
+export function newFunctionNodeChecker(logger: DepsLogger, telemetry: DepsTelemetry): DepsChecker {
+  return new FunctionNodeChecker(logger, telemetry);
 }
 
 export function newSPFxNodeChecker(logger: DepsLogger, telemetry: DepsTelemetry): DepsChecker {

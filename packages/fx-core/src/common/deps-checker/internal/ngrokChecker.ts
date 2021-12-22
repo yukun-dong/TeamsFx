@@ -35,9 +35,14 @@ export class NgrokChecker implements DepsChecker {
     this._telemetry = telemetry;
   }
 
+  public async command(): Promise<string> {
+    throw new Error("Method not implemented.");
+  }
+
   public getDepsInfo(): Promise<DepsInfo> {
     return Promise.resolve({
       name: ngrokName,
+      isLinuxSupported: true,
       installVersion: installPackageVersion,
       supportedVersions: supportedPackageVersions,
       details: new Map<string, string>(),
@@ -79,7 +84,6 @@ export class NgrokChecker implements DepsChecker {
     return path.join(this.getDefaultInstallPath(), "node_modules", "ngrok", "bin");
   }
 
-  // TODO: integrate into checker.ts after checker supports linux
   public async resolve(): Promise<boolean> {
     try {
       if (!(await this.isInstalled())) {
