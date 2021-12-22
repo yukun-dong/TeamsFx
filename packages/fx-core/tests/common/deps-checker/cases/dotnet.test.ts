@@ -12,7 +12,8 @@ import {
   DotnetChecker,
   DotnetVersion,
 } from "../../../../src/common/deps-checker/internal/dotnetChecker";
-import { DepsChecker, DepsInfo } from "../../../../src/common/deps-checker/depsChecker";
+import { DepsChecker, DepsInfo, DepsType } from "../../../../src/common/deps-checker/depsChecker";
+import { CheckerFactory } from "../../../../src/common/deps-checker/checkerFactory";
 import { logger } from "../adapters/testLogger";
 import { TestTelemetry } from "../adapters/testTelemetry";
 import {
@@ -21,7 +22,6 @@ import {
   getExecutionPolicyForCurrentUser,
   setExecutionPolicyForCurrentUser,
 } from "../utils/common";
-import * as checkerFactory from "../../../../src/common/deps-checker/checkerFactory";
 import * as sinon from "sinon";
 import * as process from "process";
 
@@ -39,7 +39,11 @@ describe("DotnetChecker E2E Test - first run", async () => {
     if (await commandExistsInPath(dotnetUtils.dotnetCommand)) {
       this.skip();
     }
-    const dotnetChecker = checkerFactory.newDotnetChecker(logger, new TestTelemetry());
+    const dotnetChecker = CheckerFactory.createChecker(
+      DepsType.Dotnet,
+      logger,
+      new TestTelemetry()
+    );
 
     const isInstalled = await dotnetChecker.isInstalled();
     assert.isFalse(isInstalled, ".NET is not installed, but isInstalled() return true");
@@ -63,7 +67,8 @@ describe("DotnetChecker E2E Test - first run", async () => {
 
     const [resourceDir, cleanupCallback] = await dotnetUtils.createMockResourceDir(specialUserName);
     try {
-      const dotnetChecker = checkerFactory.newDotnetChecker(
+      const dotnetChecker = CheckerFactory.createChecker(
+        DepsType.Dotnet,
         logger,
         new TestTelemetry()
       ) as DotnetChecker;
@@ -90,7 +95,11 @@ describe("DotnetChecker E2E Test - first run", async () => {
     const dotnetFullPath = await commandExistsInPath(dotnetUtils.dotnetCommand);
     assert.isNotNull(dotnetFullPath);
 
-    const dotnetChecker = checkerFactory.newDotnetChecker(logger, new TestTelemetry());
+    const dotnetChecker = CheckerFactory.createChecker(
+      DepsType.Dotnet,
+      logger,
+      new TestTelemetry()
+    );
 
     assert.isTrue(await dotnetChecker.isInstalled());
 
@@ -127,7 +136,11 @@ describe("DotnetChecker E2E Test - first run", async () => {
 
     assert.isTrue(await commandExistsInPath(dotnetUtils.dotnetCommand));
 
-    const dotnetChecker = checkerFactory.newDotnetChecker(logger, new TestTelemetry());
+    const dotnetChecker = CheckerFactory.createChecker(
+      DepsType.Dotnet,
+      logger,
+      new TestTelemetry()
+    );
     const shouldContinue = await dotnetChecker.resolve();
 
     assert.isTrue(shouldContinue);
@@ -140,7 +153,8 @@ describe("DotnetChecker E2E Test - first run", async () => {
     }
 
     // DotnetChecker with mock dotnet-install script
-    const dotnetChecker = checkerFactory.newDotnetChecker(
+    const dotnetChecker = CheckerFactory.createChecker(
+      DepsType.Dotnet,
       logger,
       new TestTelemetry()
     ) as DotnetChecker;
@@ -199,7 +213,11 @@ describe("DotnetChecker E2E Test - first run", async () => {
         this.skip();
       }
 
-      const dotnetChecker = checkerFactory.newDotnetChecker(logger, new TestTelemetry());
+      const dotnetChecker = CheckerFactory.createChecker(
+        DepsType.Dotnet,
+        logger,
+        new TestTelemetry()
+      );
       const shouldContinue = await dotnetChecker.resolve();
 
       assert.isTrue(shouldContinue);
@@ -224,7 +242,8 @@ describe("DotnetChecker E2E Test - second run", () => {
       this.skip();
     }
 
-    const dotnetChecker = checkerFactory.newDotnetChecker(
+    const dotnetChecker = CheckerFactory.createChecker(
+      DepsType.Dotnet,
       logger,
       new TestTelemetry()
     ) as DotnetChecker;
@@ -283,7 +302,11 @@ describe("DotnetChecker E2E Test - second run", () => {
       }
     );
 
-    const dotnetChecker = checkerFactory.newDotnetChecker(logger, new TestTelemetry());
+    const dotnetChecker = CheckerFactory.createChecker(
+      DepsType.Dotnet,
+      logger,
+      new TestTelemetry()
+    );
     const shouldContinue = await dotnetChecker.resolve();
 
     assert.isTrue(shouldContinue);
@@ -295,7 +318,8 @@ describe("DotnetChecker E2E Test - second run", () => {
       this.skip();
     }
 
-    const dotnetChecker = checkerFactory.newDotnetChecker(
+    const dotnetChecker = CheckerFactory.createChecker(
+      DepsType.Dotnet,
       logger,
       new TestTelemetry()
     ) as DotnetChecker;

@@ -5,7 +5,8 @@ import * as chai from "chai";
 import * as nodeUtils from "../utils/node";
 import { TestLogger } from "../adapters/testLogger";
 import { TestTelemetry } from "../adapters/testTelemetry";
-import * as checkerFactory from "../../../../src/common/deps-checker/checkerFactory";
+import { DepsType } from "../../../../src/common/deps-checker/depsChecker";
+import { CheckerFactory } from "../../../../src/common/deps-checker/checkerFactory";
 
 const functionsSupportedNodeVersions = ["10", "12", "14"];
 const azureSupportedNodeVersions = ["10", "12", "14", "16"];
@@ -16,7 +17,8 @@ suite("NodeChecker E2E Test", async () => {
     if (!(nodeVersion != null && functionsSupportedNodeVersions.includes(nodeVersion))) {
       this.skip();
     }
-    const nodeChecker = checkerFactory.newFunctionNodeChecker(
+    const nodeChecker = CheckerFactory.createChecker(
+      DepsType.FunctionNode,
       new TestLogger(),
       new TestTelemetry()
     );
@@ -31,7 +33,11 @@ suite("NodeChecker E2E Test", async () => {
     if (!(nodeVersion != null && azureSupportedNodeVersions.includes(nodeVersion))) {
       this.skip();
     }
-    const nodeChecker = checkerFactory.newAzureNodeChecker(new TestLogger(), new TestTelemetry());
+    const nodeChecker = CheckerFactory.createChecker(
+      DepsType.AzureNode,
+      new TestLogger(),
+      new TestTelemetry()
+    );
 
     const shouldContinue = await nodeChecker.resolve();
 
@@ -43,11 +49,13 @@ suite("NodeChecker E2E Test", async () => {
       this.skip();
     }
 
-    const functionNodeChecker = checkerFactory.newFunctionNodeChecker(
+    const functionNodeChecker = CheckerFactory.createChecker(
+      DepsType.FunctionNode,
       new TestLogger(),
       new TestTelemetry()
     );
-    const azureNodeChecker = checkerFactory.newAzureNodeChecker(
+    const azureNodeChecker = CheckerFactory.createChecker(
+      DepsType.AzureNode,
       new TestLogger(),
       new TestTelemetry()
     );

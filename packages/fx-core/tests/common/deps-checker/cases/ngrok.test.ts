@@ -10,7 +10,8 @@ import { NgrokChecker } from "../../../../src/common/deps-checker/internal/ngrok
 import * as path from "path";
 import * as os from "os";
 import { cpUtils } from "../../../../src/common/deps-checker/util/cpUtils";
-import * as checkerFactory from "../../../../src/common/deps-checker/checkerFactory";
+import { DepsType } from "../../../../src/common/deps-checker/depsChecker";
+import { CheckerFactory } from "../../../../src/common/deps-checker/checkerFactory";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
 
 chai.use(spies);
@@ -26,7 +27,8 @@ suite("NgrokChecker E2E Test", async () => {
   });
 
   test("not install + special character dir", async function (this: Mocha.Context) {
-    const ngrokChecker = checkerFactory.newNgrokChecker(
+    const ngrokChecker = CheckerFactory.createChecker(
+      DepsType.Ngrok,
       logger,
       new TestTelemetry()
     ) as NgrokChecker;

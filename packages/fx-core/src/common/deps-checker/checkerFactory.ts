@@ -5,29 +5,32 @@ import { DotnetChecker } from "./internal/dotnetChecker";
 import { DepsLogger } from "./depsLogger";
 import { DepsTelemetry } from "./depsTelemetry";
 import { DepsChecker } from "./depsChecker";
-import { AzureNodeChecker, SPFxNodeChecker, FunctionNodeChecker } from "./internal/nodeChecker";
+import { AzureNodeChecker, FunctionNodeChecker, SPFxNodeChecker } from "./internal/nodeChecker";
 import { FuncToolChecker } from "./internal/funcToolChecker";
 import { NgrokChecker } from "./internal/ngrokChecker";
+import { DepsType } from "./depsChecker";
 
-export function newAzureNodeChecker(logger: DepsLogger, telemetry: DepsTelemetry): DepsChecker {
-  return new AzureNodeChecker(logger, telemetry);
-}
-export function newFunctionNodeChecker(logger: DepsLogger, telemetry: DepsTelemetry): DepsChecker {
-  return new FunctionNodeChecker(logger, telemetry);
-}
-
-export function newSPFxNodeChecker(logger: DepsLogger, telemetry: DepsTelemetry): DepsChecker {
-  return new SPFxNodeChecker(logger, telemetry);
-}
-
-export function newDotnetChecker(logger: DepsLogger, telemetry: DepsTelemetry): DepsChecker {
-  return new DotnetChecker(logger, telemetry);
-}
-
-export function newNgrokChecker(logger: DepsLogger, telemetry: DepsTelemetry): DepsChecker {
-  return new NgrokChecker(logger, telemetry);
-}
-
-export function newFuncToolChecker(logger: DepsLogger, telemetry: DepsTelemetry): DepsChecker {
-  return new FuncToolChecker(logger, telemetry);
+export class CheckerFactory {
+  public static createChecker(
+    type: DepsType,
+    logger: DepsLogger,
+    telemetry: DepsTelemetry
+  ): DepsChecker {
+    switch (type) {
+      case DepsType.AzureNode:
+        return new AzureNodeChecker(logger, telemetry);
+      case DepsType.FunctionNode:
+        return new FunctionNodeChecker(logger, telemetry);
+      case DepsType.SpfxNode:
+        return new SPFxNodeChecker(logger, telemetry);
+      case DepsType.Dotnet:
+        return new DotnetChecker(logger, telemetry);
+      case DepsType.Ngrok:
+        return new NgrokChecker(logger, telemetry);
+      case DepsType.FuncCoreTools:
+        return new FuncToolChecker(logger, telemetry);
+      default:
+        throw Error("dependency type is undefined");
+    }
+  }
 }

@@ -18,3 +18,12 @@ export interface DepsInfo {
   supportedVersions: string[];
   details: Map<string, string>;
 }
+
+export enum DepsType {
+  AzureNode = "azure-node",
+  FunctionNode = "function-node",
+  SpfxNode = "spfx-node",
+  Dotnet = "dotnet",
+  FuncCoreTools = "func-core-tools",
+  Ngrok = "ngrok",
+}

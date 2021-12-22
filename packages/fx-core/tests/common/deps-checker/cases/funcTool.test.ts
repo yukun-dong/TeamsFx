@@ -7,6 +7,8 @@ import * as funcUtils from "../utils/funcTool";
 import { logger } from "../adapters/testLogger";
 import { TestTelemetry } from "../adapters/testTelemetry";
 import { FuncToolChecker } from "../../../../src/common/deps-checker/internal/funcToolChecker";
+import { DepsType } from "../../../../src/common/deps-checker/depsChecker";
+import { CheckerFactory } from "../../../../src/common/deps-checker/checkerFactory";
 import * as path from "path";
 import * as os from "os";
 import { cpUtils } from "../../../../src/common/deps-checker/util/cpUtils";
@@ -17,11 +19,6 @@ chai.use(spies);
 const expect = chai.expect;
 const assert = chai.assert;
 const sandbox = chai.spy.sandbox();
-
-function createTestChecker(): FuncToolChecker {
-  const telemetry = new TestTelemetry();
-  return new FuncToolChecker(logger, telemetry);
-}
 
 describe("FuncToolChecker E2E Test", async () => {
   beforeEach(async function () {
@@ -35,7 +32,11 @@ describe("FuncToolChecker E2E Test", async () => {
       this.skip();
     }
 
-    const funcToolChecker = createTestChecker();
+    const funcToolChecker = CheckerFactory.createChecker(
+      DepsType.FuncCoreTools,
+      logger,
+      new TestTelemetry()
+    ) as FuncToolChecker;
     sandbox.on(funcToolChecker, "getDefaultInstallPath", () =>
       path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "func", "Aarón García", "for test")
     );
@@ -57,7 +58,11 @@ describe("FuncToolChecker E2E Test", async () => {
     }
 
     // first: throw timeout error
-    const funcToolChecker = createTestChecker();
+    const funcToolChecker = CheckerFactory.createChecker(
+      DepsType.FuncCoreTools,
+      logger,
+      new TestTelemetry()
+    ) as FuncToolChecker;
     sandbox.on(funcToolChecker, "doInstallPortableFunc", async () =>
       console.log("spy on doInstallPortableFunc")
     );
@@ -79,7 +84,11 @@ describe("FuncToolChecker E2E Test", async () => {
     if ((await funcUtils.isFuncCoreToolsInstalled()) || !isLinux()) {
       this.skip();
     }
-    const funcToolChecker = createTestChecker();
+    const funcToolChecker = CheckerFactory.createChecker(
+      DepsType.FuncCoreTools,
+      logger,
+      new TestTelemetry()
+    ) as FuncToolChecker;
     const depsInfo = await funcToolChecker.getDepsInfo();
 
     expect(depsInfo.isLinuxSupported).to.be.equal(false);
@@ -91,7 +100,11 @@ describe("FuncToolChecker E2E Test", async () => {
       this.skip();
     }
 
-    const funcToolChecker = createTestChecker();
+    const funcToolChecker = CheckerFactory.createChecker(
+      DepsType.FuncCoreTools,
+      logger,
+      new TestTelemetry()
+    ) as FuncToolChecker;
 
     expect(funcToolChecker.isInstalled()).to.be.equal(true);
     expect(await funcToolChecker.command()).to.be.equal("func", `should use global func`);
@@ -107,7 +120,11 @@ describe("FuncToolChecker E2E Test", async () => {
       this.skip();
     }
 
-    const funcToolChecker = createTestChecker();
+    const funcToolChecker = CheckerFactory.createChecker(
+      DepsType.FuncCoreTools,
+      logger,
+      new TestTelemetry()
+    ) as FuncToolChecker;
     const shouldContinue = await funcToolChecker.resolve();
 
     assert.isTrue(shouldContinue);
