@@ -15,7 +15,7 @@ import { createConfidentialClientApplication } from "../util/utils.node";
  * @example
  * ```typescript
  * loadConfiguration(); // load configuration from environment variables
- * const credential = new M365TenantCredential();
+ * const credential = new AppCredential();
  * ```
  *
  * @remarks
@@ -23,12 +23,12 @@ import { createConfidentialClientApplication } from "../util/utils.node";
  *
  * @beta
  */
-export class M365TenantCredential implements TokenCredential {
+export class AppCredential implements TokenCredential {
   private readonly msalClient: ConfidentialClientApplication;
   private logger: InternalLogger;
 
   /**
-   * Constructor of M365TenantCredential.
+   * Constructor of AppCredential.
    *
    * @remarks
    * Only works in in server side.

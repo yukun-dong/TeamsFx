@@ -3,7 +3,7 @@ import { ComponentContainer, InitializeOptions } from "../internal/types";
 import { ComponentMetadata } from "../internal/metadata";
 import { AuthenticationConfiguration } from "../models/configuration";
 import { InternalLogger } from "../util/logger";
-import { M365TenantCredential } from "./m365TenantCredential";
+import { AppCredential } from "./appCredential";
 import { OnBehalfOfUserCredential } from "./onBehalfOfUserCredential";
 import { TokenCredential } from "@azure/core-auth";
 import { getTeamsFxConfigFromEnv } from "../util/configurationProvider";
@@ -12,9 +12,9 @@ export function registerCredential() {
   const m365Factory = (componentContainer: ComponentContainer, options?: InitializeOptions) => {
     const authOption = options as AuthenticationConfiguration;
     const logger = componentContainer.resolve("logger") as InternalLogger;
-    return new M365TenantCredential(authOption, logger);
+    return new AppCredential(authOption, logger);
   };
-  registerComponent(new ComponentMetadata("M365TenantCredential", m365Factory, false));
+  registerComponent(new ComponentMetadata("AppCredential", m365Factory, false));
 
   const onBehalfOfUserCredentialFactory = (
     componentContainer: ComponentContainer,
@@ -38,15 +38,15 @@ export function initializeTeamsFx(config?: AuthenticationConfiguration, accessTo
     authOption: authOption,
     accessToken: accessToken,
   });
-  initializeComponent("M365TenantCredential", { ...authOption });
+  initializeComponent("AppCredential", { ...authOption });
 }
 
 export function getUserCredential(): TokenCredential {
   return resolveComponent("OnBehalfOfUserCredential") as OnBehalfOfUserCredential;
 }
 
-export function getAppCredential(): M365TenantCredential {
-  return resolveComponent("M365TenantCredential") as M365TenantCredential;
+export function getAppCredential(): AppCredential {
+  return resolveComponent("AppCredential") as AppCredential;
 }
 
 export async function authorize(scopes: string | string[], credential?: TokenCredential) {

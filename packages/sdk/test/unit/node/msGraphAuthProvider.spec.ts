@@ -7,7 +7,7 @@ import mockedEnv from "mocked-env";
 import {
   loadConfiguration,
   OnBehalfOfUserCredential,
-  M365TenantCredential,
+  AppCredential,
   MsGraphAuthProvider,
   ErrorWithCode,
   ErrorCode,
@@ -79,10 +79,10 @@ describe("MsGraphAuthProvider Tests - Node", () => {
     expect(authProvider.credential).to.be.instanceOf(OnBehalfOfUserCredential);
   });
 
-  it("create msGraphAuthProvider instance should success with M365TenantCredential", function () {
-    const m356Credential = new M365TenantCredential();
+  it("create msGraphAuthProvider instance should success with AppCredential", function () {
+    const m356Credential = new AppCredential();
     const authProvider: any = new MsGraphAuthProvider(m356Credential, scopes);
-    expect(authProvider.credential).to.be.instanceOf(M365TenantCredential);
+    expect(authProvider.credential).to.be.instanceOf(AppCredential);
   });
 
   it("create msGraphAuthProvider instance should throw UiRequiredError with unconsent scope with OnBehalfOfUserCredential", async function () {

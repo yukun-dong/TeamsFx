@@ -4,7 +4,7 @@
 import { assert, expect, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import mockedEnv from "mocked-env";
-import { loadConfiguration, M365TenantCredential } from "../../../src";
+import { loadConfiguration, AppCredential } from "../../../src";
 import { ErrorCode, ErrorWithCode } from "../../../src/errors";
 import jwtDecode from "jwt-decode";
 import {
@@ -16,7 +16,7 @@ import {
 
 chaiUse(chaiPromises);
 let restore: () => void;
-describe("M365TenantCredential Tests - Node", () => {
+describe("AppCredential Tests - Node", () => {
   const fake_client_secret = "fake_client_secret";
   const defaultGraphScope = ["https://graph.microsoft.com/.default"];
 
@@ -29,8 +29,8 @@ describe("M365TenantCredential Tests - Node", () => {
     RestoreEnvironmentVariable(restore);
   });
 
-  it("create M365TenantCredential instance should success with valid configuration", function () {
-    const credential: any = new M365TenantCredential();
+  it("create AppCredential instance should success with valid configuration", function () {
+    const credential: any = new AppCredential();
 
     assert.strictEqual(credential.msalClient.config.auth.clientId, process.env.M365_CLIENT_ID);
     assert.strictEqual(
@@ -49,7 +49,7 @@ describe("M365TenantCredential Tests - Node", () => {
     });
     loadConfiguration();
 
-    const credential = new M365TenantCredential();
+    const credential = new AppCredential();
     const token = await credential.getToken(defaultGraphScope);
 
     const decodedToken = jwtDecode<AADJwtPayLoad>(token!.token);
@@ -59,7 +59,7 @@ describe("M365TenantCredential Tests - Node", () => {
   });
 
   it("getToken should success with .default scope for Client Secret", async function () {
-    const credential = new M365TenantCredential();
+    const credential = new AppCredential();
     const token = await credential.getToken(defaultGraphScope);
 
     const decodedToken = jwtDecode<AADJwtPayLoad>(token!.token);
@@ -80,7 +80,7 @@ describe("M365TenantCredential Tests - Node", () => {
       },
     });
 
-    const credential = new M365TenantCredential();
+    const credential = new AppCredential();
     const token = await credential.getToken(defaultGraphScope);
 
     const decodedToken = jwtDecode<AADJwtPayLoad>(token!.token);
@@ -94,7 +94,7 @@ describe("M365TenantCredential Tests - Node", () => {
       M365_CLIENT_SECRET: fake_client_secret,
     });
     loadConfiguration();
-    const credential = new M365TenantCredential();
+    const credential = new AppCredential();
 
     const errorResult = await expect(
       credential.getToken(defaultGraphScope)

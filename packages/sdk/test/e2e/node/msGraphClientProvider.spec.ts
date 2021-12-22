@@ -8,7 +8,7 @@ import {
   createMicrosoftGraphClient,
   loadConfiguration,
   OnBehalfOfUserCredential,
-  M365TenantCredential,
+  AppCredential,
 } from "../../../src";
 import {
   getSsoTokenFromTeams,
@@ -40,9 +40,9 @@ describe("createMicrosoftGraphClient Tests - Node", () => {
     assert.strictEqual(profile.userPrincipalName, process.env.SDK_INTEGRATION_TEST_ACCOUNT_NAME);
   });
 
-  it("call graph API should failed when M365TenantCredential credential do not have admin permission", async function () {
+  it("call graph API should failed when AppCredential credential do not have admin permission", async function () {
     const scopes = ["https://graph.microsoft.com/.default"];
-    const m356Credential = new M365TenantCredential();
+    const m356Credential = new AppCredential();
     const graphClient: any = createMicrosoftGraphClient(m356Credential, scopes);
 
     // Current test user does not have admin permission so application credential can not perform any request successfully.

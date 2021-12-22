@@ -1,11 +1,6 @@
-import {
-  initializeComponentAsync,
-  registerComponent,
-  resolveComponent,
-  ComponentContainer,
-  ComponentMetadata,
-  InitializeOptions,
-} from "../internal";
+import { initializeComponentAsync, registerComponent, resolveComponent } from "../internal/api";
+import { ComponentContainer, InitializeOptions } from "../internal/types";
+import { ComponentMetadata } from "../internal/metadata";
 import { Logger } from "../util/logger";
 import { Connection, Request } from "tedious";
 import { DefaultTediousConnectionConfiguration } from "./defaultTediousConnectionConfiguration";

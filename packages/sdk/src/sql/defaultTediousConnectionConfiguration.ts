@@ -161,7 +161,7 @@ export class DefaultTediousConnectionConfiguration {
 
     let token: AccessToken | null;
     try {
-      const credential = new ManagedIdentityCredential(sqlConfig.sqlIdentityId);
+      const credential = new ManagedIdentityCredential(sqlConfig.sqlIdentityId!);
       token = await credential.getToken(this.defaultSQLScope);
     } catch (error) {
       const errMsg = "Get user MSI token failed";

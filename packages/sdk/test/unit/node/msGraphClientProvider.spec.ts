@@ -9,7 +9,7 @@ import {
   createMicrosoftGraphClient,
   loadConfiguration,
   OnBehalfOfUserCredential,
-  M365TenantCredential,
+  AppCredential,
   ErrorWithCode,
   ErrorCode,
 } from "../../../src";
@@ -76,9 +76,9 @@ describe("createMicrosoftGraphClient Tests - node", () => {
     expect(graphClient.config.authProvider.credential).to.be.instanceOf(OnBehalfOfUserCredential);
   });
 
-  it("createMicrosoftGraphClient should success with M365TenantCredential", async function () {
-    const m356Credential = new M365TenantCredential();
+  it("createMicrosoftGraphClient should success with AppCredential", async function () {
+    const m356Credential = new AppCredential();
     const graphClient: any = createMicrosoftGraphClient(m356Credential, scopes);
-    expect(graphClient.config.authProvider.credential).to.be.instanceOf(M365TenantCredential);
+    expect(graphClient.config.authProvider.credential).to.be.instanceOf(AppCredential);
   });
 });

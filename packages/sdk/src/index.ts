@@ -12,7 +12,7 @@ export {
 } from "./util/configurationProvider";
 
 // credential
-export { M365TenantCredential } from "./credential/m365TenantCredential";
+export { AppCredential } from "./credential/appCredential";
 export { OnBehalfOfUserCredential } from "./credential/onBehalfOfUserCredential";
 export { TeamsUserCredential } from "./credential/teamsUserCredential";
 

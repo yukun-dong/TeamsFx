@@ -6,7 +6,7 @@ import * as chaiPromises from "chai-as-promised";
 import {
   loadConfiguration,
   OnBehalfOfUserCredential,
-  M365TenantCredential,
+  AppCredential,
   MsGraphAuthProvider,
 } from "../../../src";
 import {
@@ -47,9 +47,9 @@ describe("MsGraphAuthProvider Tests - Node", () => {
     assert.isTrue(decodedToken.scp!.indexOf(scopes) >= 0);
   });
 
-  it("getAccessToken should success with M365TenantCredential", async function () {
+  it("getAccessToken should success with AppCredential", async function () {
     const scopes = ["https://graph.microsoft.com/.default"];
-    const m356Credential = new M365TenantCredential();
+    const m356Credential = new AppCredential();
     const authProvider: MsGraphAuthProvider = new MsGraphAuthProvider(m356Credential, scopes);
     const accessToken = await authProvider.getAccessToken();
 
