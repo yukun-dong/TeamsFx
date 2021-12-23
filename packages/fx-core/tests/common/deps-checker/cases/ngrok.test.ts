@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as chai from "chai";
+import chai from "chai";
 import spies from "chai-spies";
 import * as ngrokUtils from "../utils/ngrok";
 import { logger } from "../adapters/testLogger";

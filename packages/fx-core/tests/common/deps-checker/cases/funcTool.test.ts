@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as chai from "chai";
+import chai from "chai";
 import spies from "chai-spies";
 import * as funcUtils from "../utils/funcTool";
 import { logger } from "../adapters/testLogger";
