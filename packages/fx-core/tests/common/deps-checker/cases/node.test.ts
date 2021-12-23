@@ -12,8 +12,8 @@ import "mocha";
 const functionsSupportedNodeVersions = ["10", "12", "14"];
 const azureSupportedNodeVersions = ["10", "12", "14", "16"];
 
-suite("NodeChecker E2E Test", async () => {
-  test("Node supported version is installed", async function () {
+describe("NodeChecker E2E Test", async () => {
+  it("Node supported version is installed", async function () {
     const nodeVersion = await nodeUtils.getNodeVersion();
     if (!(nodeVersion != null && functionsSupportedNodeVersions.includes(nodeVersion))) {
       this.skip();
@@ -29,7 +29,7 @@ suite("NodeChecker E2E Test", async () => {
     chai.assert.isTrue(shouldContinue);
   });
 
-  test("Node supported version is installed for tab-only projects", async function () {
+  it("Node supported version is installed for tab-only projects", async function () {
     const nodeVersion = await nodeUtils.getNodeVersion();
     if (!(nodeVersion != null && azureSupportedNodeVersions.includes(nodeVersion))) {
       this.skip();
@@ -45,7 +45,7 @@ suite("NodeChecker E2E Test", async () => {
     chai.assert.isTrue(shouldContinue);
   });
 
-  test("Node is not installed", async function (this: Mocha.Context) {
+  it("Node is not installed", async function (this: Mocha.Context) {
     if ((await nodeUtils.getNodeVersion()) !== null) {
       this.skip();
     }
