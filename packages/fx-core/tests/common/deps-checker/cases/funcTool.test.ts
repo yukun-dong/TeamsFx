@@ -28,7 +28,7 @@ describe("FuncToolChecker E2E Test", async () => {
     console.error("cleanup portable func and sandbox");
   });
 
-  test("not install + special character dir", async function () {
+  it("not install + special character dir", async function () {
     if ((await funcUtils.isFuncCoreToolsInstalled()) || isLinux()) {
       this.skip();
     }
@@ -53,7 +53,7 @@ describe("FuncToolChecker E2E Test", async () => {
     await assertFuncStart(funcToolChecker);
   });
 
-  test("not install + throw error when installing", async function () {
+  it("not install + throw error when installing", async function () {
     if ((await funcUtils.isFuncCoreToolsInstalled()) || isLinux()) {
       this.skip();
     }
@@ -81,7 +81,7 @@ describe("FuncToolChecker E2E Test", async () => {
     await assertFuncStart(funcToolChecker);
   });
 
-  test("not install + linux + user cancel", async function () {
+  it("not install + linux + user cancel", async function () {
     if ((await funcUtils.isFuncCoreToolsInstalled()) || !isLinux()) {
       this.skip();
     }
@@ -96,7 +96,7 @@ describe("FuncToolChecker E2E Test", async () => {
     expect(await funcToolChecker.command()).to.be.equal("npx azure-functions-core-tools@3");
   });
 
-  test("already install + linux", async function () {
+  it("already install + linux", async function () {
     if (!(await funcUtils.isFuncCoreToolsInstalled()) || !isLinux()) {
       this.skip();
     }
@@ -112,7 +112,7 @@ describe("FuncToolChecker E2E Test", async () => {
     await assertFuncStart(funcToolChecker);
   });
 
-  test("already install + old func version(v2)", async function () {
+  it("already install + old func version(v2)", async function () {
     const funcVersion = await funcUtils.getFuncCoreToolsVersion();
     if (isLinux()) {
       this.skip();

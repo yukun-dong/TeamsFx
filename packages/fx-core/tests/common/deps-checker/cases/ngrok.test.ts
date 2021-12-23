@@ -20,14 +20,14 @@ const expect = chai.expect;
 const assert = chai.assert;
 const sandbox = chai.spy.sandbox();
 
-suite("NgrokChecker E2E Test", async () => {
+describe("NgrokChecker E2E Test", async () => {
   setup(async function (this: Mocha.Context) {
     await ngrokUtils.cleanup();
     sandbox.restore();
     console.error("cleanup ngrok and sandbox");
   });
 
-  test("not install + special character dir", async function (this: Mocha.Context) {
+  it("not install + special character dir", async function (this: Mocha.Context) {
     const ngrokChecker = CheckerFactory.createChecker(
       DepsType.Ngrok,
       logger,
