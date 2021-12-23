@@ -24,6 +24,7 @@ import {
 } from "../utils/common";
 import * as sinon from "sinon";
 import * as process from "process";
+import "mocha";
 
 describe("DotnetChecker E2E Test - first run", async () => {
   beforeEach(async function () {

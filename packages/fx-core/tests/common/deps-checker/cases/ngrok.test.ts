@@ -13,6 +13,7 @@ import { cpUtils } from "../../../../src/common/deps-checker/util/cpUtils";
 import { DepsType } from "../../../../src/common/deps-checker/depsChecker";
 import { CheckerFactory } from "../../../../src/common/deps-checker/checkerFactory";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
+import "mocha";
 
 chai.use(spies);
 const expect = chai.expect;

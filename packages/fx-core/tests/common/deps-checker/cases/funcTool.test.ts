@@ -14,6 +14,7 @@ import * as os from "os";
 import { cpUtils } from "../../../../src/common/deps-checker/util/cpUtils";
 import { isLinux } from "../../../../src/common/deps-checker/util/system";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
+import "mocha";
 
 chai.use(spies);
 const expect = chai.expect;
