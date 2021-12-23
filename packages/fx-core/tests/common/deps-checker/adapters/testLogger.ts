@@ -3,15 +3,12 @@ import { LogLevel } from "@microsoft/teamsfx-api";
 
 export class TestLogger implements DepsLogger {
   public append(message: string): Promise<boolean> {
-    this.writeLog(LogLevel.Debug, message);
     return Promise.resolve(true);
   }
   public appendLine(message: string): Promise<boolean> {
-    this.writeLog(LogLevel.Debug, message);
     return Promise.resolve(true);
   }
   public debug(message: string): Promise<boolean> {
-    this.writeLog(LogLevel.Debug, message);
     return Promise.resolve(true);
   }
 
