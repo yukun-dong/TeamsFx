@@ -388,8 +388,8 @@ async function verifyInstallationFailed(dotnetChecker: DepsChecker) {
 }
 
 function getErrorResourceDir(): string {
-  process.env["ENV_CHECKER_CUSTOM_SCRIPT_STDOUT"] = this._scriptStdout;
-  process.env["ENV_CHECKER_CUSTOM_SCRIPT_STDERR"] = this._scriptStderr;
-  process.env["ENV_CHECKER_CUSTOM_SCRIPT_EXITCODE"] = this._scriptExitCode.toString();
+  process.env["ENV_CHECKER_CUSTOM_SCRIPT_STDOUT"] = "mock dotnet installing";
+  process.env["ENV_CHECKER_CUSTOM_SCRIPT_STDERR"] = "mock dotnet install failure";
+  process.env["ENV_CHECKER_CUSTOM_SCRIPT_EXITCODE"] = "1";
   return path.resolve(__dirname, "../resource");
 }
