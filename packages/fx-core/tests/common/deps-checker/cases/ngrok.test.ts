@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import * as chai from "chai";
-import * as spies from "chai-spies";
+import spies from "chai-spies";
 import * as ngrokUtils from "../utils/ngrok";
 import { logger } from "../adapters/testLogger";
 import { TestTelemetry } from "../adapters/testTelemetry";
