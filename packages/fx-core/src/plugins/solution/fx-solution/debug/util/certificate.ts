@@ -14,9 +14,18 @@ import {
 import { asn1, md, pki } from "node-forge";
 import * as os from "os";
 import { v4 as uuidv4 } from "uuid";
+import * as isWsl from "is-wsl";
+import open from "open";
 
-import { LocalDebugCertificate } from "../constants";
+import {
+  LocalDebugCertificate,
+  LocalDebugWSLCertificate,
+  LocalDebugWSLCertStateKeys,
+} from "../constants";
 import * as ps from "./process";
+import path from "path";
+import { globalStateGet, globalStateUpdate } from "../../../../../common/globalState";
+import { openFolderWithExplorer, wslPathToWindowsPath } from "./wsl";
 
 const installText = "Install";
 const learnMoreText = "Learn More";
@@ -311,7 +320,47 @@ export class LocalCertificateManager {
 
         return true;
       } else {
-        // TODO: Linux
+        if (isWsl && !globalStateGet(LocalDebugWSLCertStateKeys.dontShowAgain, false)) {
+          // popup dialog to assist users the manually install the certicate
+          if (!this.ui) {
+            // No UI, cannot show dialog
+            return false;
+          }
+
+          while (true) {
+            const result = await this.ui.showMessage(
+              "warn",
+              LocalDebugWSLCertificate.Message,
+              true,
+              LocalDebugWSLCertificate.LearnMore,
+              LocalDebugWSLCertificate.OpenFolder,
+              LocalDebugWSLCertificate.DontShowAnymore,
+              LocalDebugWSLCertificate.ContinueDebug
+            );
+            if (result.isErr()) {
+              this.logger?.error(
+                `Failed to show certificate installation popup, error = '${result.error}'`
+              );
+              return false;
+            }
+            if (result.value === LocalDebugWSLCertificate.LearnMore) {
+              open(LocalDebugWSLCertificate.LearnMoreUrl);
+            } else if (result.value === LocalDebugWSLCertificate.OpenFolder) {
+              const certFolder = path.dirname(certPath);
+              const windowsCertFolder = await wslPathToWindowsPath(certFolder);
+              await openFolderWithExplorer(windowsCertFolder);
+            } else if (result.value === LocalDebugWSLCertificate.DontShowAnymore) {
+              // don't show anymore
+              await globalStateUpdate(LocalDebugWSLCertStateKeys.dontShowAgain, true);
+              return false;
+            } else {
+              // continue debug
+              return false;
+            }
+          }
+        }
+
+        // TODO: Other Linux distribution
         return false;
       }
     } catch (error) {
