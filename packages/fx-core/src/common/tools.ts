@@ -60,6 +60,12 @@ Handlebars.registerHelper("notContains", (value, array) => {
   return array.indexOf(value) == -1 ? this : "";
 });
 
+Handlebars.registerHelper("helperMissing", function (...args) {
+  const options = args[args.length - 1];
+  const placeholder = `{{${options.name}}}`;
+  return new Handlebars.SafeString(placeholder);
+});
+
 export const Executor = {
   async execCommandAsync(command: string, options?: ExecOptions) {
     const execAsync = promisify(exec);

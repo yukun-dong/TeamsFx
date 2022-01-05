@@ -17,7 +17,6 @@ import {
   BuildFolderName,
   ArchiveFolderName,
   V1ManifestFileName,
-  ConfigMap,
 } from "@microsoft/teamsfx-api";
 import { AppStudioClient } from "./appStudio";
 import {
@@ -40,7 +39,6 @@ import {
   REMOTE_AAD_ID,
   LOCAL_DEBUG_BOT_DOMAIN,
   BOT_DOMAIN,
-  LOCAL_WEB_APPLICATION_INFO_SOURCE,
   WEB_APPLICATION_INFO_SOURCE,
   PluginNames,
   SOLUTION_PROVISION_SUCCEEDED,
@@ -79,7 +77,7 @@ import AdmZip from "adm-zip";
 import * as fs from "fs-extra";
 import { getTemplatesFolder } from "../../..";
 import path from "path";
-import { getAppDirectory, isSPFxProject } from "../../../common";
+import { getAppDirectory, isSPFxProject, compileHandlebarsTemplateString } from "../../../common";
 import {
   LocalSettingsAuthKeys,
   LocalSettingsBotKeys,
@@ -89,13 +87,7 @@ import {
 import { v4 } from "uuid";
 import isUUID from "validator/lib/isUUID";
 import { ResourcePermission, TeamsAppAdmin } from "../../../common/permissionInterface";
-import Mustache from "mustache";
-import {
-  checkAndConfig,
-  getCustomizedKeys,
-  getLocalAppName,
-  replaceConfigValue,
-} from "./utils/utils";
+import { getCustomizedKeys, replaceConfigValue } from "./utils/utils";
 import { TelemetryPropertyKey } from "./utils/telemetry";
 import _ from "lodash";
 import { HelpLinks } from "../../../common/constants";
@@ -190,7 +182,7 @@ export class AppStudioPluginImpl {
         },
       },
     };
-    const manifestString = Mustache.render(JSON.stringify(manifest), view);
+    const manifestString = compileHandlebarsTemplateString(JSON.stringify(manifest), view);
     manifest = JSON.parse(manifestString);
 
     const appDefinition = await this.convertToAppDefinition(ctx, manifest, false);
@@ -1612,19 +1604,17 @@ export class AppStudioPluginImpl {
       config: ctx.envInfo.config,
       state: {
         "fx-resource-frontend-hosting": {
-          endpoint: endpoint ?? "{{{state.fx-resource-frontend-hosting.endpoint}}}",
+          endpoint: endpoint,
         },
         "fx-resource-aad-app-for-teams": {
-          clientId: aadId ?? "{{state.fx-resource-aad-app-for-teams.clientId}}",
-          applicationIdUris:
-            webApplicationInfoResource ??
-            "{{{state.fx-resource-aad-app-for-teams.applicationIdUris}}}",
+          clientId: aadId,
+          applicationIdUris: webApplicationInfoResource,
         },
         "fx-resource-appstudio": {
-          teamsAppId: teamsAppId ?? "{{state.fx-resource-appstudio.teamsAppId}}",
+          teamsAppId: teamsAppId,
         },
         "fx-resource-bot": {
-          botId: botId ?? "{{state.fx-resource-bot.botId}}",
+          botId: botId,
         },
       },
       localSettings: {
@@ -1651,15 +1641,16 @@ export class AppStudioPluginImpl {
         },
       },
     };
-    manifestString = Mustache.render(manifestString, view);
-    const tokens = [
-      ...new Set(
-        Mustache.parse(manifestString)
-          .filter((x) => {
-            return x[0] != "text" && x[1] != "localSettings.teamsApp.teamsAppId";
-          })
-          .map((x) => x[1])
-      ),
+    manifestString = compileHandlebarsTemplateString(manifestString, view);
+    const tmp = Handlebars.parse(manifestString);
+    const tokens: string[] = [
+      // ...new Set(
+      //   Mustache.parse(manifestString)
+      //     .filter((x) => {
+      //       return x[0] != "text" && x[1] != "localSettings.teamsApp.teamsAppId";
+      //     })
+      //     .map((x) => x[1])
+      // ),
     ];
     if (tokens.length > 0) {
       if (isLocalDebug) {
@@ -1748,7 +1739,7 @@ export class AppStudioPluginImpl {
         },
       },
     };
-    manifestString = Mustache.render(manifestString, view);
+    manifestString = compileHandlebarsTemplateString(manifestString, view);
     return manifestString;
   }
 }
