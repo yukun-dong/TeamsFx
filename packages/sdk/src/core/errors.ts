@@ -82,9 +82,6 @@ export class ErrorMessage {
   // Internal Error
   static readonly FailToAcquireTokenOnBehalfOfUser =
     "Failed to acquire access token on behalf of user: {0}";
-
-  // ChannelNotSupported Error
-  static readonly OnlyMSTeamsChannelSupported = "{0} is only supported in MS Teams Channel";
 }
 
 /**

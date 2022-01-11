@@ -2,9 +2,13 @@
 // Licensed under the MIT license.
 
 import { ConfidentialClientApplication, NodeAuthOptions } from "@azure/msal-node";
-import { ErrorWithCode, ErrorCode, AuthenticationConfiguration } from "@microsoft/teamsfx";
+import {
+  ErrorWithCode,
+  ErrorCode,
+  AuthenticationConfiguration,
+  UserInfo,
+} from "@microsoft/teamsfx";
 import { SSOTokenInfoBase, SSOTokenV1Info, SSOTokenV2Info } from "./models/ssoTokenInfo";
-import { UserInfo } from "./models/userinfo";
 import jwt_decode from "jwt-decode";
 import { internalLogger } from "./logger";
 import { createHash } from "crypto";

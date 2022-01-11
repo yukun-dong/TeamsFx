@@ -8,12 +8,8 @@ import { AccessToken } from '@azure/identity';
 import { AuthenticationProvider } from '@microsoft/microsoft-graph-client';
 import { Client } from '@microsoft/microsoft-graph-client';
 import { ConnectionConfig } from 'tedious';
-import { Dialog } from 'botbuilder-dialogs';
-import { DialogContext } from 'botbuilder-dialogs';
-import { DialogTurnResult } from 'botbuilder-dialogs';
 import { GetTokenOptions } from '@azure/identity';
 import { TokenCredential } from '@azure/identity';
-import { TokenResponse } from 'botframework-schema';
 
 // @beta
 export interface AuthenticationConfiguration {
@@ -137,26 +133,6 @@ export function setLogger(logger?: Logger): void;
 
 // @beta
 export function setLogLevel(level: LogLevel): void;
-
-// @beta
-export class TeamsBotSsoPrompt extends Dialog {
-    constructor(dialogId: string, settings: TeamsBotSsoPromptSettings);
-    beginDialog(dc: DialogContext): Promise<DialogTurnResult>;
-    continueDialog(dc: DialogContext): Promise<DialogTurnResult>;
-}
-
-// @beta
-export interface TeamsBotSsoPromptSettings {
-    endOnInvalidMessage?: boolean;
-    scopes: string[];
-    timeout?: number;
-}
-
-// @beta
-export interface TeamsBotSsoPromptTokenResponse extends TokenResponse {
-    ssoToken: string;
-    ssoTokenExpiration: string;
-}
 
 // @beta
 export class TeamsUserCredential implements TokenCredential {

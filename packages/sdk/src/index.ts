@@ -17,9 +17,6 @@ export { MsGraphAuthProvider } from "./core/msGraphAuthProvider";
 export { createMicrosoftGraphClient } from "./core/msGraphClientProvider";
 export { DefaultTediousConnectionConfiguration } from "./core/defaultTediousConnectionConfiguration";
 
-export { TeamsBotSsoPrompt, TeamsBotSsoPromptSettings } from "./bot/teamsBotSsoPrompt";
-export { TeamsBotSsoPromptTokenResponse } from "./bot/teamsBotSsoPromptTokenResponse";
-
 export { UserInfo } from "./models/userinfo";
 export {
   Configuration,

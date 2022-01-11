@@ -3,8 +3,12 @@
 
 import { AccessToken, GetTokenOptions, TokenCredential } from "@azure/identity";
 import { AuthenticationResult, ConfidentialClientApplication } from "@azure/msal-node";
-import { ErrorWithCode, ErrorCode, AuthenticationConfiguration } from "@microsoft/teamsfx";
-import { UserInfo } from "./models/userinfo";
+import {
+  ErrorWithCode,
+  ErrorCode,
+  AuthenticationConfiguration,
+  UserInfo,
+} from "@microsoft/teamsfx";
 import { internalLogger } from "./logger";
 import {
   formatString,
@@ -12,9 +16,9 @@ import {
   getUserInfoFromSsoToken,
   parseJwt,
   validateScopesType,
+  createConfidentialClientApplication,
 } from "./utils";
 import { ErrorMessage } from "./errors";
-import { createConfidentialClientApplication } from "./utils";
 
 /**
  * Represent on-behalf-of flow to get user identity, and it is designed to be used in server side.
