@@ -89,7 +89,7 @@ export class TeamsUserCredential implements TokenCredential {
    *
    * @beta
    */
-  async login(scopes: string | string[]): Promise<AccessToken> {
+  async login(scopes: string | string[]): Promise<void> {
     validateScopesType(scopes);
     const scopesStr = typeof scopes === "string" ? scopes : scopes.join(" ");
 
@@ -99,7 +99,7 @@ export class TeamsUserCredential implements TokenCredential {
       await this.init();
     }
 
-    return new Promise<AccessToken>((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       microsoftTeams.initialize(() => {
         microsoftTeams.authentication.authenticate({
           url: `${this.config.initiateLoginEndpoint}?clientId=${
@@ -117,8 +117,14 @@ export class TeamsUserCredential implements TokenCredential {
             }
 
             try {
-              const accessToken = parseAccessTokenFromAuthCodeTokenResponse(result);
-              resolve(accessToken);
+              const sessionStorageKeyVlaue = JSON.parse(result);
+              const sessionStorageKeys = Object.keys(sessionStorageKeyVlaue);
+              sessionStorageKeys.forEach((key) => {
+                sessionStorage.setItem(key, sessionStorageKeyVlaue[key]);
+              });
+              resolve();
+              // const accessToken = parseAccessTokenFromAuthCodeTokenResponse(result);
+              // resolve(accessToken);
             } catch (error: any) {
               reject(error);
             }
