@@ -504,6 +504,11 @@ export async function customizeBicepFilesToCustomizedRg(
   let content = await fs.readFile(provisionFilePath, fileEncoding);
   let insertionIndex = content.indexOf(provisionInsertionSearchString);
 
+  // Skip if can not find provisionInsertionSearchString
+  if (insertionIndex < 0) {
+    return;
+  }
+
   const paramToAdd = `param customizedRg string = '${customizedRgName}'\r\n`;
   const scopeToAdd = `scope: resourceGroup(customizedRg)\r\n`;
   content =
