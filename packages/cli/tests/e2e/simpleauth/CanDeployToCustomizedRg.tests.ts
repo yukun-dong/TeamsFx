@@ -63,10 +63,6 @@ describe("Deploy to customized resource group", function () {
       // Validate Aad App
       const aad = AadValidator.init(context, false, AppStudioLogin);
       await AadValidator.validate(aad);
-
-      // Validate Simple Auth
-      const simpleAuth = new SimpleAuthValidator(context, projectPath, env);
-      await simpleAuth.validate();
     }
 
     await deleteResourceGroupByName(customizedRgName);

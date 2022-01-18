@@ -48,10 +48,6 @@ describe("Provision", function () {
     const aad = AadValidator.init(context, false, AppStudioLogin);
     await AadValidator.validate(aad);
 
-    // Validate Simple Auth
-    const simpleAuth = new SimpleAuthValidator(context, projectPath, env);
-    await simpleAuth.validate();
-
     // deploy
     await CliHelper.deployProject(ResourceToDeploy.FrontendHosting, projectPath);
   });

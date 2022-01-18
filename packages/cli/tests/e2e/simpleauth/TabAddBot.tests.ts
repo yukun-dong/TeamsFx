@@ -50,10 +50,6 @@ describe("Configuration successfully changed when with different plugins", funct
       // Validate Aad App
       const aad = AadValidator.init(context, false, AppStudioLogin);
       await AadValidator.validate(aad);
-
-      // Validate Simple Auth
-      const simpleAuth = new SimpleAuthValidator(context, projectPath, env);
-      await simpleAuth.validate();
     }
   });
 });

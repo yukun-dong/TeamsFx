@@ -52,10 +52,6 @@ describe("Test Azure Key Vault", function () {
       const aad = AadValidator.init(context, false, AppStudioLogin);
       await AadValidator.validate(aad);
 
-      // Validate Simple Auth
-      const simpleAuth = new SimpleAuthValidator(context, projectPath, env);
-      await simpleAuth.validate();
-
       // Validate Key Vault
       const keyVault = new KeyVaultValidator(context, projectPath, env);
       await keyVault.validate();

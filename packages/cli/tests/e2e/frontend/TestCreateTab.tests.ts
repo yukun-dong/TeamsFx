@@ -58,10 +58,6 @@ describe("Create single tab", function () {
     const aad = AadValidator.init(context, false, AppStudioLogin);
     await AadValidator.validate(aad);
 
-    // Validate Simple Auth
-    const simpleAuth = new SimpleAuthValidator(context, projectPath, env);
-    await simpleAuth.validate();
-
     // Validate Tab Frontend
     const frontend = FrontendValidator.init(context, true);
     await FrontendValidator.validateProvision(frontend);
