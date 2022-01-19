@@ -11,7 +11,9 @@ export function useTeamsFx() {
     if (!initialized) {
       if (process.env.NODE_ENV === "development") {
         setLogLevel(LogLevel.Verbose);
-        setLogFunction((level, message) => { console.log(message); });
+        setLogFunction((level, message) => {
+          console.log(message);
+        });
       }
       initialized = true;
     }
