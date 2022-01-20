@@ -69,7 +69,7 @@ export class TeamsFx {
       internalLogger.error(errorMsg);
       throw new ErrorWithCode(errorMsg, ErrorCode.IdentityTypeNotSupported);
     }
-    return (this.Credential as OnBehalfOfUserCredential).getUserInfo();
+    return Promise.resolve((this.Credential as OnBehalfOfUserCredential).getUserInfo());
   }
 
   public async login(scopes: string | string[]): Promise<void> {
@@ -90,9 +90,9 @@ export class TeamsFx {
     return this;
   }
 
-  public setCustomConfig(customConfig: Map<string, string>): TeamsFx {
-    for (const key of customConfig.keys()) {
-      const value = customConfig.get(key);
+  public setCustomConfig(customConfig: Record<string, string>): TeamsFx {
+    for (const key of Object.keys(customConfig)) {
+      const value = customConfig[key];
       if (value) {
         this.configuration.set(key, value);
       }

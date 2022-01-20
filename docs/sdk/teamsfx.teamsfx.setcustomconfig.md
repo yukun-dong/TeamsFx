@@ -7,14 +7,14 @@
 <b>Signature:</b>
 
 ```typescript
-setCustomConfig(customConfig: Map<string, string>): TeamsFx;
+setCustomConfig(customConfig: Record<string, string>): TeamsFx;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  customConfig | Map&lt;string, string&gt; |  |
+|  customConfig | Record&lt;string, string&gt; |  |
 
 <b>Returns:</b>
 

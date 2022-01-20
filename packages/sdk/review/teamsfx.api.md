@@ -174,7 +174,7 @@ export class TeamsFx {
     // (undocumented)
     login(scopes: string | string[]): Promise<void>;
     // (undocumented)
-    setCustomConfig(customConfig: Map<string, string>): TeamsFx;
+    setCustomConfig(customConfig: Record<string, string>): TeamsFx;
     // (undocumented)
     setSsoToken(ssoToken: string): TeamsFx;
 }

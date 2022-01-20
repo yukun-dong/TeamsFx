@@ -102,7 +102,7 @@ function isSQLConfigurationValid(teamsfx: TeamsFx) {
  */
 function isMsiAuthentication(teamsfx: TeamsFx): boolean {
   internalLogger.verbose("Check connection config using MSI access token or username and password");
-  if (teamsfx.hasConfig("sqlUsername") != null && teamsfx.hasConfig("sqlPassword") != null) {
+  if (teamsfx.hasConfig("sqlUsername") && teamsfx.hasConfig("sqlPassword")) {
     internalLogger.verbose("Login with username and password");
     return false;
   }
