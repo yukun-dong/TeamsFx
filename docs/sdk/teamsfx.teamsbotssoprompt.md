@@ -61,7 +61,7 @@ dialogs.add(new WaterfallDialog('taskNeedingLogin', [
 
 |  Constructor | Modifiers | Description |
 |  --- | --- | --- |
-|  [(constructor)(dialogId, settings, authConfig)](./teamsfx.teamsbotssoprompt._constructor_.md) |  | <b><i>(BETA)</i></b> Constructor of TeamsBotSsoPrompt. |
+|  [(constructor)(teamsfx, dialogId, settings)](./teamsfx.teamsbotssoprompt._constructor_.md) |  | <b><i>(BETA)</i></b> Constructor of TeamsBotSsoPrompt. |
 
 ## Methods
 

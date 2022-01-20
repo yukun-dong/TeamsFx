@@ -5,7 +5,6 @@ import { AccessToken, TokenCredential, GetTokenOptions } from "@azure/identity";
 import { UserInfo } from "../models/userinfo";
 import { ErrorCode, ErrorMessage, ErrorWithCode } from "../core/errors";
 import * as microsoftTeams from "@microsoft/teams-js";
-import { getAuthenticationConfigFromEnv } from "../core/configurationProvider.browser";
 import { AuthenticationConfiguration } from "../models/configuration";
 import {
   validateScopesType,
@@ -56,14 +55,14 @@ export class TeamsUserCredential implements TokenCredential {
    * const anotherCredential = new TeamsUserCredential(config);
    * ```
    *
-   * @param {AuthenticationConfiguration?} authConfig - The authentication configuration. Use environment variables if not provided.
+   * @param {AuthenticationConfiguration} authConfig - The authentication configuration. Use environment variables if not provided.
    *
    * @throws {@link ErrorCode|InvalidConfiguration} when client id, initiate login endpoint or simple auth endpoint is not found in config.
    * @throws {@link ErrorCode|RuntimeNotSupported} when runtime is nodeJS.
    *
    * @beta
    */
-  constructor(authConfig?: AuthenticationConfiguration) {
+  constructor(authConfig: AuthenticationConfiguration) {
     internalLogger.info("Create teams user credential");
     this.config = this.loadAndValidateConfig(authConfig);
     this.ssoToken = null;
@@ -364,16 +363,12 @@ export class TeamsUserCredential implements TokenCredential {
   /**
    * Load and validate authentication configuration
    *
-   * @param {AuthenticationConfiguration?} authConfig - The authentication configuration. Use environment variables if not provided.
+   * @param {AuthenticationConfiguration?} config - The authentication configuration. Use environment variables if not provided.
    *
    * @returns Authentication configuration
    */
-  private loadAndValidateConfig(
-    authConfig?: AuthenticationConfiguration
-  ): AuthenticationConfiguration {
+  private loadAndValidateConfig(config: AuthenticationConfiguration): AuthenticationConfiguration {
     internalLogger.verbose("Validate authentication configuration");
-    const config = authConfig ?? getAuthenticationConfigFromEnv();
-
     if (config.initiateLoginEndpoint && config.clientId) {
       return config;
     }

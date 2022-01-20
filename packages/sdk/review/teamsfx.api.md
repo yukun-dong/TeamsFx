@@ -16,11 +16,6 @@ import { TokenCredential } from '@azure/identity';
 import { TokenResponse } from 'botframework-schema';
 
 // @beta
-export interface ApiConfiguration {
-    readonly endpoint?: string;
-}
-
-// @beta
 export interface AuthenticationConfiguration {
     readonly applicationIdUri?: string;
     readonly authorityHost?: string;
@@ -38,18 +33,14 @@ export interface Configuration {
 }
 
 // @beta
-export function createMicrosoftGraphClient(credential: TokenCredential, scopes?: string | string[]): Client;
-
-// @beta
-export class DefaultTediousConnectionConfiguration {
-    getConfig(databaseName?: string): Promise<ConnectionConfig>;
-}
+export function createMicrosoftGraphClient(teamsfx: TeamsFx, scopes?: string | string[]): Client;
 
 // @beta
 export enum ErrorCode {
     ChannelNotSupported = "ChannelNotSupported",
     ConsentFailed = "ConsentFailed",
     FailedOperation = "FailedOperation",
+    IdentityTypeNotSupported = "IdentityTypeNotSupported",
     InternalError = "InternalError",
     InvalidCertificate = "InvalidCertificate",
     InvalidConfiguration = "InvalidConfiguration",
@@ -68,16 +59,18 @@ export class ErrorWithCode extends Error {
 }
 
 // @beta
-export function getApiConfigFromEnv(): ApiConfiguration;
-
-// @beta
-export function getAuthenticationConfigFromEnv(): AuthenticationConfiguration;
-
-// @beta
 export function getLogLevel(): LogLevel | undefined;
 
 // @beta
-export function getSqlConfigFromEnv(): SqlConfiguration;
+export function getTediousConnectionConfig(teamsfx: TeamsFx, databaseName?: string): Promise<ConnectionConfig>;
+
+// @public (undocumented)
+export enum IdentityType {
+    // (undocumented)
+    App = 1,
+    // (undocumented)
+    User = 0
+}
 
 // @beta
 export type LogFunction = (level: LogLevel, message: string) => void;
@@ -100,19 +93,19 @@ export enum LogLevel {
 
 // @beta
 export class M365TenantCredential implements TokenCredential {
-    constructor(authConfig?: AuthenticationConfiguration);
+    constructor(authConfig: AuthenticationConfiguration);
     getToken(scopes: string | string[], options?: GetTokenOptions): Promise<AccessToken | null>;
 }
 
 // @beta
 export class MsGraphAuthProvider implements AuthenticationProvider {
-    constructor(credential: TokenCredential, scopes?: string | string[]);
+    constructor(teamsfx: TeamsFx, scopes?: string | string[]);
     getAccessToken(): Promise<string>;
 }
 
 // @beta
 export class OnBehalfOfUserCredential implements TokenCredential {
-    constructor(ssoToken: string, authConfig?: AuthenticationConfiguration);
+    constructor(ssoToken: string, config: AuthenticationConfiguration);
     getToken(scopes: string | string[], options?: GetTokenOptions): Promise<AccessToken | null>;
     getUserInfo(): UserInfo;
 }
@@ -142,17 +135,8 @@ export function setLogger(logger?: Logger): void;
 export function setLogLevel(level: LogLevel): void;
 
 // @beta
-export interface SqlConfiguration {
-    readonly sqlDatabaseName?: string;
-    readonly sqlIdentityId?: string;
-    readonly sqlPassword?: string;
-    readonly sqlServerEndpoint: string;
-    readonly sqlUsername?: string;
-}
-
-// @beta
 export class TeamsBotSsoPrompt extends Dialog {
-    constructor(dialogId: string, settings: TeamsBotSsoPromptSettings, authConfig?: AuthenticationConfiguration);
+    constructor(teamsfx: TeamsFx, dialogId: string, settings: TeamsBotSsoPromptSettings);
     beginDialog(dc: DialogContext): Promise<DialogTurnResult>;
     continueDialog(dc: DialogContext): Promise<DialogTurnResult>;
 }
@@ -170,9 +154,34 @@ export interface TeamsBotSsoPromptTokenResponse extends TokenResponse {
     ssoTokenExpiration: string;
 }
 
+// @public (undocumented)
+export class TeamsFx {
+    constructor(identityType?: IdentityType);
+    // (undocumented)
+    get Credential(): TokenCredential;
+    // (undocumented)
+    getConfig(key: string): string;
+    // (undocumented)
+    getConfigs(): Record<string, string>;
+    // Warning: (ae-incompatible-release-tags) The symbol "getUserInfo" is marked as @public, but its signature references "UserInfo" which is marked as @beta
+    //
+    // (undocumented)
+    getUserInfo(): Promise<UserInfo>;
+    // (undocumented)
+    hasConfig(key: string): boolean;
+    // (undocumented)
+    identityType: IdentityType;
+    // (undocumented)
+    login(scopes: string | string[]): Promise<void>;
+    // (undocumented)
+    setCustomConfig(customConfig: Map<string, string>): TeamsFx;
+    // (undocumented)
+    setSsoToken(ssoToken: string): TeamsFx;
+}
+
 // @beta
 export class TeamsUserCredential implements TokenCredential {
-    constructor(authConfig?: AuthenticationConfiguration);
+    constructor(authConfig: AuthenticationConfiguration);
     getToken(scopes: string | string[], options?: GetTokenOptions): Promise<AccessToken | null>;
     getUserInfo(): Promise<UserInfo>;
     login(scopes: string | string[]): Promise<void>;

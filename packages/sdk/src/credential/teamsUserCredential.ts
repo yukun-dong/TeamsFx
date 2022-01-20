@@ -22,7 +22,7 @@ export class TeamsUserCredential implements TokenCredential {
    * Can only be used within Teams.
    * @beta
    */
-  constructor(authConfig?: AuthenticationConfiguration) {
+  constructor(authConfig: AuthenticationConfiguration) {
     throw new ErrorWithCode(
       formatString(ErrorMessage.NodejsRuntimeNotSupported, "TeamsUserCredential"),
       ErrorCode.RuntimeNotSupported

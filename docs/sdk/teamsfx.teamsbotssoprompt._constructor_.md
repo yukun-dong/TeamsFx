@@ -12,16 +12,16 @@ Constructor of TeamsBotSsoPrompt.
 <b>Signature:</b>
 
 ```typescript
-constructor(dialogId: string, settings: TeamsBotSsoPromptSettings, authConfig?: AuthenticationConfiguration);
+constructor(teamsfx: TeamsFx, dialogId: string, settings: TeamsBotSsoPromptSettings);
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
+|  teamsfx | [TeamsFx](./teamsfx.teamsfx.md) | Used to provide configuration and auth |
 |  dialogId | string | Unique ID of the dialog within its parent <code>DialogSet</code> or <code>ComponentDialog</code>. |
 |  settings | [TeamsBotSsoPromptSettings](./teamsfx.teamsbotssopromptsettings.md) | Settings used to configure the prompt. |
-|  authConfig | [AuthenticationConfiguration](./teamsfx.authenticationconfiguration.md) | The authentication configuration. Use environment variables if not provided. |
 
 ## Exceptions
 

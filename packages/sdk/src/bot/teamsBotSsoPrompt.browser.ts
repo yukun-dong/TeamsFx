@@ -4,6 +4,7 @@
 import { DialogContext, DialogTurnResult } from "botbuilder-dialogs";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
 import { formatString } from "../util/utils";
+import { TeamsFx } from "../core/teamsfx";
 
 /**
  * Settings used to configure an TeamsBotSsoPrompt instance.
@@ -96,7 +97,11 @@ export class TeamsBotSsoPrompt {
    *
    * @beta
    */
-  constructor(dialogId: string, private settings: TeamsBotSsoPromptSettings) {
+  constructor(
+    private teamsfx: TeamsFx,
+    dialogId: string,
+    private settings: TeamsBotSsoPromptSettings
+  ) {
     throw new ErrorWithCode(
       formatString(ErrorMessage.BrowserRuntimeNotSupported, "TeamsBotSsoPrompt"),
       ErrorCode.RuntimeNotSupported

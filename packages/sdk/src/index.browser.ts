@@ -3,19 +3,14 @@
 
 export { ErrorWithCode, ErrorCode } from "./core/errors";
 
-export {
-  getAuthenticationConfigFromEnv,
-  getApiConfigFromEnv,
-  getSqlConfigFromEnv,
-} from "./core/configurationProvider.browser";
-
 export { M365TenantCredential } from "./credential/m365TenantCredential.browser";
 export { OnBehalfOfUserCredential } from "./credential/onBehalfOfUserCredential.browser";
 export { TeamsUserCredential } from "./credential/teamsUserCredential.browser";
 
 export { MsGraphAuthProvider } from "./core/msGraphAuthProvider";
 export { createMicrosoftGraphClient } from "./core/msGraphClientProvider";
-export { DefaultTediousConnectionConfiguration } from "./core/defaultTediousConnectionConfiguration.browser";
+// export { DefaultTediousConnectionConfiguration } from "./core/defaultTediousConnectionConfiguration.browser";
+export { getTediousConnectionConfig } from "./sql/tediousConnectionConfig.browser";
 
 export { TeamsBotSsoPrompt, TeamsBotSsoPromptSettings } from "./bot/teamsBotSsoPrompt.browser";
 export { TeamsBotSsoPromptTokenResponse } from "./bot/teamsBotSsoPromptTokenResponse";
@@ -37,3 +32,6 @@ export {
   setLogger,
   setLogFunction,
 } from "./util/logger";
+
+export { TeamsFx } from "./core/teamsfx.browser";
+export { IdentityType } from "./models/identityType";

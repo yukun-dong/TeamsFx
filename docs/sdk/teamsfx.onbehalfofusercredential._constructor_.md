@@ -12,7 +12,7 @@ Constructor of OnBehalfOfUserCredential
 <b>Signature:</b>
 
 ```typescript
-constructor(ssoToken: string, authConfig?: AuthenticationConfiguration);
+constructor(ssoToken: string, config: AuthenticationConfiguration);
 ```
 
 ## Parameters
@@ -20,7 +20,7 @@ constructor(ssoToken: string, authConfig?: AuthenticationConfiguration);
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  ssoToken | string | User token provided by Teams SSO feature. |
-|  authConfig | [AuthenticationConfiguration](./teamsfx.authenticationconfiguration.md) | The authentication configuration. Use environment variables if not provided. |
+|  config | [AuthenticationConfiguration](./teamsfx.authenticationconfiguration.md) | The authentication configuration. Use environment variables if not provided. |
 
 ## Exceptions
 

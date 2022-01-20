@@ -4,6 +4,7 @@
 import { AccessToken, TokenCredential, GetTokenOptions } from "@azure/identity";
 import { formatString } from "../util/utils";
 import { ErrorCode, ErrorMessage, ErrorWithCode } from "../core/errors";
+import { AuthenticationConfiguration } from "../models/configuration";
 
 /**
  * Represent Microsoft 365 tenant identity, and it is usually used when user is not involved.
@@ -21,7 +22,7 @@ export class M365TenantCredential implements TokenCredential {
    * Only works in in server side.
    * @beta
    */
-  constructor() {
+  constructor(authConfig: AuthenticationConfiguration) {
     throw new ErrorWithCode(
       formatString(ErrorMessage.BrowserRuntimeNotSupported, "M365TenantCredential"),
       ErrorCode.RuntimeNotSupported

@@ -27,13 +27,12 @@ import {
   PromptRecognizerResult,
 } from "botbuilder-dialogs";
 import { TeamsBotSsoPromptTokenResponse } from "./teamsBotSsoPromptTokenResponse";
-import { getAuthenticationConfigFromEnv } from "../core/configurationProvider";
-import { OnBehalfOfUserCredential } from "../credential/onBehalfOfUserCredential";
-import { AuthenticationConfiguration } from "../models/configuration";
 import { v4 as uuidv4 } from "uuid";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
 import { internalLogger } from "../util/logger";
 import { validateScopesType, formatString, parseJwt } from "../util/utils";
+import { TeamsFx } from "../core/teamsfx";
+import { IdentityType } from "../models/identityType";
 
 const invokeResponseType = "invokeResponse";
 /**
@@ -135,14 +134,12 @@ export interface TeamsBotSsoPromptSettings {
  * @beta
  */
 export class TeamsBotSsoPrompt extends Dialog {
-  private config: AuthenticationConfiguration;
-
   /**
    * Constructor of TeamsBotSsoPrompt.
    *
+   * @param {TeamsFx} teamsfx - Used to provide configuration and auth
    * @param dialogId Unique ID of the dialog within its parent `DialogSet` or `ComponentDialog`.
    * @param settings Settings used to configure the prompt.
-   * @param {AuthenticationConfiguration?} authConfig - The authentication configuration. Use environment variables if not provided.
    *
    * @throws {@link ErrorCode|InvalidParameter} when scopes is not a valid string or string array.
    * @throws {@link ErrorCode|RuntimeNotSupported} when runtime is browser.
@@ -150,13 +147,13 @@ export class TeamsBotSsoPrompt extends Dialog {
    * @beta
    */
   constructor(
+    private teamsfx: TeamsFx,
     dialogId: string,
-    private settings: TeamsBotSsoPromptSettings,
-    authConfig?: AuthenticationConfiguration
+    private settings: TeamsBotSsoPromptSettings
   ) {
     super(dialogId);
     validateScopesType(settings.scopes);
-    this.config = this.loadAndValidateConfig(authConfig);
+    this.loadAndValidateConfig();
     internalLogger.info("Create a new Teams Bot SSO Prompt");
   }
 
@@ -268,23 +265,32 @@ export class TeamsBotSsoPrompt extends Dialog {
     }
   }
 
-  private loadAndValidateConfig(authConfig?: AuthenticationConfiguration) {
-    const config = authConfig ?? getAuthenticationConfigFromEnv();
+  private loadAndValidateConfig() {
+    if (this.teamsfx.identityType !== IdentityType.User) {
+      const errorMsg = formatString(
+        ErrorMessage.IdentityTypeNotSupported,
+        this.teamsfx.identityType.toString(),
+        "TeamsBotSsoPrompt"
+      );
+      internalLogger.error(errorMsg);
+      throw new ErrorWithCode(errorMsg, ErrorCode.IdentityTypeNotSupported);
+    }
+
     const missingConfigurations: string[] = [];
 
-    if (!config.initiateLoginEndpoint) {
+    if (!this.teamsfx.hasConfig("initiateLoginEndpoint")) {
       missingConfigurations.push("initiateLoginEndpoint");
     }
 
-    if (!config.clientId) {
+    if (!this.teamsfx.hasConfig("clientId")) {
       missingConfigurations.push("clientId");
     }
 
-    if (!config.tenantId) {
+    if (!this.teamsfx.hasConfig("tenantId")) {
       missingConfigurations.push("tenantId");
     }
 
-    if (!config.applicationIdUri) {
+    if (!this.teamsfx.hasConfig("applicationIdUri")) {
       missingConfigurations.push("applicationIdUri");
     }
 
@@ -297,7 +303,6 @@ export class TeamsBotSsoPrompt extends Dialog {
       internalLogger.error(errorMsg);
       throw new ErrorWithCode(errorMsg, ErrorCode.InvalidConfiguration);
     }
-    return config;
   }
 
   /**
@@ -360,15 +365,17 @@ export class TeamsBotSsoPrompt extends Dialog {
   private getSignInResource(loginHint: string) {
     internalLogger.verbose("Get sign in authentication configuration");
 
-    const signInLink = `${this.config.initiateLoginEndpoint}?scope=${encodeURI(
-      this.settings.scopes.join(" ")
-    )}&clientId=${this.config.clientId}&tenantId=${this.config.tenantId}&loginHint=${loginHint}`;
+    const signInLink = `${this.teamsfx.getConfig("initiateLoginEndpoint")}?
+      scope=${encodeURI(this.settings.scopes.join(" "))}
+      &clientId=${this.teamsfx.getConfig("clientId")}
+      &tenantId=${this.teamsfx.getConfig("tenantId")}
+      &loginHint=${loginHint}`;
 
     internalLogger.verbose("Sign in link: " + signInLink);
 
     const tokenExchangeResource: TokenExchangeResource = {
       id: uuidv4(),
-      uri: this.config.applicationIdUri!.replace(/\/$/, "") + "/access_as_user",
+      uri: this.teamsfx.getConfig("applicationIdUri").replace(/\/$/, "") + "/access_as_user",
     };
 
     internalLogger.verbose("Token exchange resource uri: " + tokenExchangeResource.uri);
@@ -401,7 +408,8 @@ export class TeamsBotSsoPrompt extends Dialog {
         );
       } else {
         const ssoToken = context.activity.value.token;
-        const credential: OnBehalfOfUserCredential = new OnBehalfOfUserCredential(ssoToken);
+        this.teamsfx.setSsoToken(ssoToken);
+        const credential = this.teamsfx.Credential;
         let exchangedToken: AccessToken | null;
         try {
           exchangedToken = await credential.getToken(this.settings.scopes);

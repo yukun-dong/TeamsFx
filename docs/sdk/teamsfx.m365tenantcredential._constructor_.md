@@ -12,7 +12,7 @@ Constructor of M365TenantCredential.
 <b>Signature:</b>
 
 ```typescript
-constructor(authConfig?: AuthenticationConfiguration);
+constructor(authConfig: AuthenticationConfiguration);
 ```
 
 ## Parameters

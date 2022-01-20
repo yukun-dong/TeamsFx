@@ -3,7 +3,6 @@
 
 import { AccessToken, GetTokenOptions, TokenCredential } from "@azure/identity";
 import { AuthenticationResult, ConfidentialClientApplication } from "@azure/msal-node";
-import { getAuthenticationConfigFromEnv } from "../core/configurationProvider";
 import { UserInfo } from "../models/userinfo";
 import { AuthenticationConfiguration } from "../models/configuration";
 import { internalLogger } from "../util/logger";
@@ -41,7 +40,7 @@ export class OnBehalfOfUserCredential implements TokenCredential {
    * Only works in in server side.
    *
    * @param {string} ssoToken - User token provided by Teams SSO feature.
-   * @param {AuthenticationConfiguration?} authConfig - The authentication configuration. Use environment variables if not provided.
+   * @param {AuthenticationConfiguration} config - The authentication configuration. Use environment variables if not provided.
    *
    * @throws {@link ErrorCode|InvalidConfiguration} when client id, client secret, certificate content, authority host or tenant id is not found in config.
    * @throws {@link ErrorCode|InternalError} when SSO token is not valid.
@@ -49,10 +48,8 @@ export class OnBehalfOfUserCredential implements TokenCredential {
    *
    * @beta
    */
-  constructor(ssoToken: string, authConfig?: AuthenticationConfiguration) {
+  constructor(ssoToken: string, config: AuthenticationConfiguration) {
     internalLogger.info("Get on behalf of user credential");
-
-    const config = authConfig ?? getAuthenticationConfigFromEnv();
 
     const missingConfigurations: string[] = [];
     if (!config.clientId) {
