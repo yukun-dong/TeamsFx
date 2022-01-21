@@ -26,6 +26,11 @@ export interface AuthenticationConfiguration {
     readonly tenantId?: string;
 }
 
+// Warning: (ae-incompatible-release-tags) The symbol "callApi" is marked as @public, but its signature references "TeamsFx" which is marked as @beta
+//
+// @public (undocumented)
+export function callApi(teamsfx: TeamsFx, functionName?: string, params?: any, method?: "get" | "post"): Promise<any>;
+
 // @beta
 export interface Configuration {
     readonly authentication?: AuthenticationConfiguration;

@@ -2,10 +2,10 @@
 // Licensed under the MIT license.
 
 import { AuthenticationProvider } from "@microsoft/microsoft-graph-client";
-import { ErrorWithCode, ErrorCode } from "./errors";
+import { ErrorWithCode, ErrorCode } from "../core/errors";
 import { internalLogger } from "../util/logger";
 import { validateScopesType } from "../util/utils";
-import { TeamsFx } from "./teamsfx";
+import { TeamsFx } from "../core/teamsfx";
 
 const defaultScope = "https://graph.microsoft.com/.default";
 

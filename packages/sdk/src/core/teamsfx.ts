@@ -198,7 +198,8 @@ export class TeamsFx {
     this.configuration.set("clientSecret", env.M365_CLIENT_SECRET);
     this.configuration.set("initiateLoginEndpoint", env.INITIATE_LOGIN_ENDPOINT);
     this.configuration.set("applicationIdUri", env.M365_APPLICATION_ID_URI);
-    this.configuration.set("endpoint", env.API_ENDPOINT);
+    this.configuration.set("apiEndpoint", env.API_ENDPOINT);
+    this.configuration.set("apiName", env.API_NAME);
     this.configuration.set("sqlServerEndpoint", env.SQL_ENDPOINT);
     this.configuration.set("sqlUsername", env.SQL_USER_NAME);
     this.configuration.set("sqlPassword", env.SQL_PASSWORD);

@@ -40,7 +40,8 @@ export class TeamsFx {
     this.configuration.set("clientId", env.REACT_APP_CLIENT_ID);
     this.configuration.set("initiateLoginEndpoint", env.REACT_APP_START_LOGIN_PAGE_URL);
     this.configuration.set("applicationIdUri", env.M365_APPLICATION_ID_URI);
-    this.configuration.set("endpoint", env.REACT_APP_FUNC_ENDPOINT);
+    this.configuration.set("apiEndpoint", env.REACT_APP_FUNC_ENDPOINT);
+    this.configuration.set("apiName", env.REACT_APP_FUNC_NAME);
 
     Object.keys(env).forEach((key: string) => {
       const value = env[key];

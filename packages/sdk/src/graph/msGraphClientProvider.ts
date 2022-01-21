@@ -4,7 +4,7 @@
 import { Client } from "@microsoft/microsoft-graph-client";
 import { MsGraphAuthProvider } from "./msGraphAuthProvider";
 import { internalLogger } from "../util/logger";
-import { TeamsFx } from "./teamsfx";
+import { TeamsFx } from "../core/teamsfx";
 
 /**
  * Get Microsoft graph client.

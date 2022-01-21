@@ -7,8 +7,8 @@ export { M365TenantCredential } from "./credential/m365TenantCredential.browser"
 export { OnBehalfOfUserCredential } from "./credential/onBehalfOfUserCredential.browser";
 export { TeamsUserCredential } from "./credential/teamsUserCredential.browser";
 
-export { MsGraphAuthProvider } from "./core/msGraphAuthProvider";
-export { createMicrosoftGraphClient } from "./core/msGraphClientProvider";
+export { MsGraphAuthProvider } from "./graph/msGraphAuthProvider";
+export { createMicrosoftGraphClient } from "./graph/msGraphClientProvider";
 // export { DefaultTediousConnectionConfiguration } from "./core/defaultTediousConnectionConfiguration.browser";
 export { getTediousConnectionConfig } from "./sql/tediousConnectionConfig.browser";
 
@@ -35,3 +35,4 @@ export {
 
 export { TeamsFx } from "./core/teamsfx.browser";
 export { IdentityType } from "./models/identityType";
+export { callApi } from "./function/callApi";
