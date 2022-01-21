@@ -154,28 +154,17 @@ export interface TeamsBotSsoPromptTokenResponse extends TokenResponse {
     ssoTokenExpiration: string;
 }
 
-// @public (undocumented)
+// @beta
 export class TeamsFx {
     constructor(identityType?: IdentityType);
-    // (undocumented)
     get Credential(): TokenCredential;
-    // (undocumented)
     getConfig(key: string): string;
-    // (undocumented)
     getConfigs(): Record<string, string>;
-    // Warning: (ae-incompatible-release-tags) The symbol "getUserInfo" is marked as @public, but its signature references "UserInfo" which is marked as @beta
-    //
-    // (undocumented)
     getUserInfo(): Promise<UserInfo>;
-    // (undocumented)
     hasConfig(key: string): boolean;
-    // (undocumented)
     identityType: IdentityType;
-    // (undocumented)
     login(scopes: string | string[]): Promise<void>;
-    // (undocumented)
     setCustomConfig(customConfig: Record<string, string>): TeamsFx;
-    // (undocumented)
     setSsoToken(ssoToken: string): TeamsFx;
 }
 

@@ -9,6 +9,10 @@ import { formatString } from "../util/utils";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
 import { internalLogger } from "../util/logger";
 
+/**
+ * A class providing credential and configuration.
+ * @beta
+ */
 export class TeamsFx {
   private configuration: Map<string, string | undefined>;
   private teamsUserCredential?: TeamsUserCredential;
