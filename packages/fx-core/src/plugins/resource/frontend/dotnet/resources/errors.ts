@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { Logger } from "../../utils/logger";
-import { ConfigFolderName } from "@microsoft/teamsfx-api";
+import { ConfigFolderName, FxError } from "@microsoft/teamsfx-api";
 import { FrontendPluginError } from "../../resources/errors";
 
 export enum ErrorType {
@@ -109,14 +109,13 @@ export const UnhandledErrorCode = "UnhandledError";
 export const UnhandledErrorMessage = "Unhandled error.";
 
 export async function runWithErrorCatchAndThrow<T>(
-  error: DotnetPluginError,
+  error: DotnetPluginError | FxError,
   fn: () => T | Promise<T>
 ): Promise<T> {
   try {
     return await Promise.resolve(fn());
   } catch (e: any) {
     Logger.error(e.toString());
-    error.setInnerError(e);
     throw error;
   }
 }

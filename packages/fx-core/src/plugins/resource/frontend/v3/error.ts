@@ -96,3 +96,28 @@ export class UploadToStorageError extends UserError {
     );
   }
 }
+
+export class FetchConfigError extends UserError {
+  constructor(key: string) {
+    super(
+      new.target.name,
+      `Failed to find ${key} from configuration. Suggestions: ${[tips.restoreEnvironment].join(
+        " "
+      )}`,
+      "DOTNET"
+    );
+  }
+}
+
+export class ProjectPathError extends UserError {
+  constructor(projectFilePath: string) {
+    super(
+      new.target.name,
+      `Failed to find target project ${projectFilePath}. Suggestions: ${[
+        tips.checkLog,
+        tips.restoreEnvironment,
+      ].join(" ")}`,
+      "DOTNET"
+    );
+  }
+}
