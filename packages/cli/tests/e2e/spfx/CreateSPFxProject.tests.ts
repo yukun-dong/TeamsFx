@@ -73,6 +73,9 @@ describe("Start a new project", function () {
       timeout: 0,
     });
     expect(result.stderr).to.eq("");
+    console.log(
+      `[Successfully] manifest validate, stdout: '${result.stdout}', stderr: '${result.stderr}'`
+    );
 
     // provision
     result = await execAsyncWithRetry(`teamsfx provision`, {
