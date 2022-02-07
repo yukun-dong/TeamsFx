@@ -94,14 +94,14 @@ export function getAutomaticNpmInstallSetting(): boolean {
     }
 
     const config = result.value;
-    const automaticNpmInstallOption = "automatic-npm-install"; // TODO: use CliConfigOptions.AutomaticNpmInstall instead
+    const automaticNpmInstallOption = CliConfigOptions.AutomaticNpmInstall;
     if (!(automaticNpmInstallOption in config)) {
-      return false; // TODO: make automatic-npm-install enabled by default
+      return true;
     }
     return config[automaticNpmInstallOption] !== CliConfigAutomaticNpmInstall.Off;
   } catch (error: any) {
     cliLogger.warning(`Getting automatic-npm-install setting failed: ${error}`);
-    return false; // TODO: make automatic-npm-install enabled by default
+    return true;
   }
 }
 
