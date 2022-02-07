@@ -28,13 +28,19 @@ describe("Start a new project", function () {
   let appId: string;
 
   it("Create, provision and run SPFx project with React framework", async function () {
-    let command = `teamsfx new --interactive false --app-name ${appName} --capabilities tab-spfx --spfx-framework-type react --spfx-webpart-name helloworld --programming-language typescript`;
-    let result = await execAsync(command, {
-      cwd: testFolder,
-      env: process.env,
-      timeout: 0,
-    });
-    console.log(`[Successfully] new, stdout: '${result.stdout}', stderr: '${result.stderr}'`);
+    let result = undefined;
+    let command: string;
+    try {
+      command = `teamsfx new --interactive false --app-name ${appName} --capabilities tab-spfx --spfx-framework-type react --spfx-webpart-name helloworld --programming-language typescript`;
+      result = await execAsync(command, {
+        cwd: testFolder,
+        env: process.env,
+        timeout: 0,
+      });
+      console.log(`[Successfully] new, stdout: '${result.stdout}', stderr: '${result.stderr}'`);
+    } catch (error) {
+      console.log(`[Failed] new: ${error}`);
+    }
 
     // check specified files
     const files: string[] = [
@@ -64,6 +70,7 @@ describe("Start a new project", function () {
       expect(fs.existsSync(filePath), `${filePath} must exist.`).to.eq(true);
     }
     expect(result.stderr).to.eq("");
+    console.log(`[Successfully] checked`);
 
     // validation succeed without provision
     command = "teamsfx manifest validate";
