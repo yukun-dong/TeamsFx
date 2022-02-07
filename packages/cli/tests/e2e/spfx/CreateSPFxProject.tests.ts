@@ -34,6 +34,7 @@ describe("Start a new project", function () {
       env: process.env,
       timeout: 0,
     });
+    console.log(`[Successfully] new, stdout: '${result.stdout}', stderr: '${result.stderr}'`);
 
     // check specified files
     const files: string[] = [
