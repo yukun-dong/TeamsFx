@@ -64,7 +64,7 @@ describe("Multi Env Happy Path for SPFx", function () {
       expect(fs.existsSync(filePath), `${filePath} must exist.`).to.eq(true);
     }
 
-    // expect(result.stderr).to.eq("");
+    expect(result.stderr).to.eq("");
 
     // add env
     result = await execAsync(`teamsfx env add ${env} --env dev`, {
