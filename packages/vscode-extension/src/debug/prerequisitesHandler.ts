@@ -88,6 +88,7 @@ export async function checkAndInstall(): Promise<Result<any, FxError>> {
     // Get project settings
     const projectSettings = await localEnvManager.getProjectSettings(workspacePath);
     VsCodeLogInstance.outputChannel.show();
+    VsCodeLogInstance.info("LocalDebug Prerequisites Check");
     VsCodeLogInstance.outputChannel.appendLine(doctorConstant.Check);
 
     // node
@@ -119,22 +120,26 @@ export async function checkAndInstall(): Promise<Result<any, FxError>> {
 
     // npm installs
     if (ProjectSettingsHelper.isSpfx(projectSettings)) {
-      checkPromises.push(checkNpmInstall("SPFx", path.join(workspacePath, FolderName.SPFx)));
+      checkPromises.push(
+        checkNpmInstall("SPFx", path.join(workspacePath, FolderName.SPFx), "SPFx app")
+      );
     } else {
       if (ProjectSettingsHelper.includeFrontend(projectSettings)) {
         checkPromises.push(
-          checkNpmInstall("frontend", path.join(workspacePath, FolderName.Frontend))
+          checkNpmInstall("frontend", path.join(workspacePath, FolderName.Frontend), "tab app")
         );
       }
 
       if (ProjectSettingsHelper.includeBackend(projectSettings)) {
         checkPromises.push(
-          checkNpmInstall("backend", path.join(workspacePath, FolderName.Function))
+          checkNpmInstall("backend", path.join(workspacePath, FolderName.Function), "function app")
         );
       }
 
       if (ProjectSettingsHelper.includeBot(projectSettings)) {
-        checkPromises.push(checkNpmInstall("bot", path.join(workspacePath, FolderName.Bot)));
+        checkPromises.push(
+          checkNpmInstall("bot", path.join(workspacePath, FolderName.Bot), "bot app")
+        );
       }
     }
 
@@ -370,7 +375,11 @@ function handleNodeNotSupportedError(error: any, dep: DependencyStatus) {
     .join(supportedVersions)}${os.EOL}${doctorConstant.WhiteSpace}${doctorConstant.RestartVSCode}`;
 }
 
-async function checkNpmInstall(component: string, folder: string): Promise<CheckResult> {
+async function checkNpmInstall(
+  component: string,
+  folder: string,
+  displayName: string
+): Promise<CheckResult> {
   let installed = false;
   try {
     installed = await checkNpmDependencies(folder);
@@ -407,7 +416,7 @@ async function checkNpmInstall(component: string, folder: string): Promise<Check
           }
         });
       } else {
-        VsCodeLogInstance.outputChannel.appendLine(`Npm installing (${component})`);
+        VsCodeLogInstance.outputChannel.appendLine(`Executing NPM Install for ${displayName}`);
         exitCode = await runTask(
           new vscode.Task(
             {
