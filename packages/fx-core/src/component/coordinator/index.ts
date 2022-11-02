@@ -72,7 +72,7 @@ import * as uuid from "uuid";
 import { settingsUtil } from "../utils/settingsUtil";
 
 export enum TemplateNames {
-  Tab = "tab",
+  Tab = "non-sso-tab",
   SsoTab = "sso-tab",
   NotificationRestify = "notification-restify",
   NotificationWebApi = "notification-webapi",
